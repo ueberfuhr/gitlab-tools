@@ -27,3 +27,6 @@ Im IntelliJ erstellst Du Dir eine private Umgebungskonfiguration für den HTTP C
   }
 }
 ```
+
+Das Access-Token trägst Du außerdem in die [Konfigurationsdatei der Anwendung](src/private/gitlab.json) ein.
+Beide Dateien sind von der Versionierung ausgeschlossen.

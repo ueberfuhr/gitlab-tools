@@ -7,8 +7,7 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "rm -rf dist && tsc && cp -r src/public/. dist",
-    "copy-env": "copy-partial-json -s http-requests/http-client.private.env.json  -t dist/env.json -k dev.token sample-project-id",
+    "build": "rm -rf dist && tsc && cp -r src/public/. dist && cp -r src/private/. dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
