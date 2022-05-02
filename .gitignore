@@ -1,7 +1,7 @@
 **/.*
 !.gitignore
-/http-requests/http-client.private.env.json
 **/*.js
 node_modules
 dist
-private
+src/private/gitlab.json
+/http-requests/http-client.private.env.json
