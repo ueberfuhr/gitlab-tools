@@ -1,0 +1,12 @@
+### Search for project (e.g. to get the id)
+GET {{api}}/projects?search=gitlab-tools-demo
+Accept: application/json
+PRIVATE-TOKEN: {{token}}
+
+### GET single project
+GET {{api}}/projects/{{sample-project-id}}
+Accept: application/json
+PRIVATE-TOKEN: {{token}}
+
+
+

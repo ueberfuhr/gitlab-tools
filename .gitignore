@@ -1,0 +1,3 @@
+**/.*
+!.gitignore
+/http-requests/http-client.private.env.json
