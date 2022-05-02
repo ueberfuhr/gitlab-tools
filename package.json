@@ -6,8 +6,8 @@
     "doc": "doc"
   },
   "scripts": {
-    "clean": "rm -rf dist",
-    "build": "rm -rf dist && tsc && cp -r src/public/. dist && cp -r src/private/. dist",
+    "prebuild": "rm -rf dist",
+    "build": "tsc && cp -r src/public/. dist && cp src/private/*.json dist",
     "create-env": "echo {\"api\": \"https://gitlab.ars.de/api/v4\",\"access-token\": \"{{access-token}}\"} > src/private/gitlab.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
