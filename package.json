@@ -22,7 +22,6 @@
   "author": "Ralf Ueberfuhr (ARS)",
   "license": "ISC",
   "devDependencies": {
-    "copy-partial-json": "^1.1.4",
     "typescript": "^4.6.4"
   }
 }
