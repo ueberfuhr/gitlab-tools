@@ -22,8 +22,8 @@ Im IntelliJ erstellst Du Dir eine private Umgebungskonfiguration für den HTTP C
 ```json
 {
   "dev": {
-    "token": "<access-token>",
-    "sample-project-id": "<project-id>"
+    "token": "{{access-token}}",
+    "sample-project-id": "{{project-id}}"
   }
 }
 ```
