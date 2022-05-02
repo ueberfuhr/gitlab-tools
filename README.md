@@ -23,7 +23,7 @@ Im IntelliJ erstellst Du Dir eine private Umgebungskonfiguration für den HTTP C
 {
   "dev": {
     "token": "<access-token>",
-    "sample-project-id": <project-id>
+    "sample-project-id": "<project-id>"
   }
 }
 ```
