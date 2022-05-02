@@ -3,5 +3,6 @@
 **/*.js
 node_modules
 dist
-src/private/gitlab.json
+src/private/**
+!src/private/.gitkeep
 /http-requests/http-client.private.env.json
