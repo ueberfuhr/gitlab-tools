@@ -1,0 +1,26 @@
+{
+  "name": "@ars/gitlab-tools",
+  "version": "1.0.0",
+  "description": "GitLab Tools",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "rm -rf dist && tsc && cp -r src/public/. dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.ars.de:ars/schulungen/tools/gitlab.git"
+  },
+  "keywords": [
+    "gitlab",
+    "tools"
+  ],
+  "author": "Ralf Ueberfuhr (ARS)",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^4.6.4"
+  }
+}
