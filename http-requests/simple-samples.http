@@ -3,6 +3,11 @@ GET {{api}}/projects?search=gitlab-tools-demo
 Accept: application/json
 PRIVATE-TOKEN: {{token}}
 
+### Search for all Project
+GET {{api}}/projects
+Accept: application/json
+PRIVATE-TOKEN: {{token}}
+
 ### Find Single Project
 GET {{api}}/projects/{{sample-project-id}}
 Accept: application/json

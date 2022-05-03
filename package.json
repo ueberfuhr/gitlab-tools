@@ -6,9 +6,10 @@
     "doc": "doc"
   },
   "scripts": {
+    "start": "parcel src/index.html",
     "prebuild": "rm -rf dist",
-    "build": "tsc && cp -r src/public/. dist && cp src/private/*.json dist",
-    "create-env": "echo {\"api\": \"https://gitlab.ars.de/api/v4\",\"access-token\": \"{{access-token}}\"} > src/private/gitlab.json",
+    "build": "parcel build src/index.html",
+    "create-env": "echo {\\\\\\\"host\\\\\\\": \\\\\\\"https://gitlab.ars.de\\\\\\\",\\\\\\\"token\\\\\\\": \\\\\\\"{{access-token}}\\\\\\\"} > src/config/gitlab.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,6 +23,13 @@
   "author": "Ralf Ueberfuhr (ARS)",
   "license": "ISC",
   "devDependencies": {
+    "@parcel/transformer-sass": "^2.5.0",
+    "@types/bootstrap": "^5.1.10",
+    "parcel": "^2.5.0",
     "typescript": "^4.6.4"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.11.5",
+    "bootstrap": "^5.1.3"
   }
 }

@@ -1,3 +1,6 @@
+// @ts-ignore
+import * as bootstrap from 'bootstrap';
+
 function setPageTitle(title: string): void {
     if(title.length>0) {
         document.title = `GitLab-Tools - ${title}`;
@@ -6,7 +9,5 @@ function setPageTitle(title: string): void {
     }
 }
 
-window.onload = () => {
-    const titles = document.getElementsByTagName('h1');
-    setPageTitle(titles.item(0)?.textContent ?? '');
-};
+const titles = document.getElementsByTagName('h1');
+setPageTitle(titles.item(0)?.textContent ?? '');

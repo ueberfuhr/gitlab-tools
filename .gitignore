@@ -1,8 +1,6 @@
 **/.*
 !.gitignore
-**/*.js
 node_modules
 dist
-src/private/**
-!src/private/.gitkeep
+src/config/gitlab.json
 /http-requests/http-client.private.env.json
