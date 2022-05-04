@@ -1,10 +1,10 @@
 ### Search for Project (e.g. to get the id)
-GET {{api}}/projects?search=gitlab-tools-demo
+GET {{api}}/projects?search=gso&order_by=path&membership=true
 Accept: application/json
 PRIVATE-TOKEN: {{token}}
 
 ### Search for all Project
-GET {{api}}/projects
+GET {{api}}/projects?order_by=path&simple=true
 Accept: application/json
 PRIVATE-TOKEN: {{token}}
 

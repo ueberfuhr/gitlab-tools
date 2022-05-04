@@ -1,0 +1,40 @@
+<mat-sidenav-container>
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <div fxHide.gt-xs>
+        <a mat-button [mat-menu-trigger-for]="menu" aria-label="Menu button">
+          <mat-icon>menu</mat-icon>
+        </a>
+        <mat-menu #menu="matMenu">
+          <ng-container *ngFor="let entry of navigation">
+            <button mat-menu-item [routerLink]="entry.routerLink">
+              <mat-icon *ngIf="entry.icon" class="icon">{{entry.icon}}</mat-icon>
+              {{entry.label}}
+            </button>
+          </ng-container>
+        </mat-menu>
+      </div>
+      <div>
+        {{title}}
+        <span style="font-size: 0.6em; font-style: italic; font-weight: lighter; margin-left: 3em; margin-right: 1em;">
+          ... connected to
+        </span>
+        <button mat-flat-button color="accent"><a href="{{config.host}}" target="_blank">{{config.host}}</a></button>
+      </div>
+      <div fxFlex fxLayout fxLayoutAlign="flex-end" fxHide.xs>
+        <ul fxLayout fxLayoutGap="20px" class="navigation-items">
+          <li *ngFor="let entry of navigation">
+            <a [routerLink]="entry.routerLink">
+              <mat-icon *ngIf="entry.icon" class="icon">{{entry.icon}}</mat-icon>
+              <span class="label">{{entry.label}}</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </mat-toolbar>
+    <main>
+      <ng-content></ng-content>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+

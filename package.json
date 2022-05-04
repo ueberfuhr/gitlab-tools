@@ -1,35 +1,48 @@
 {
-  "name": "@ars/gitlab-tools",
-  "version": "1.0.0",
-  "description": "GitLab Tools",
-  "directories": {
-    "doc": "doc"
-  },
+  "name": "gitlab-tools",
+  "version": "0.0.0",
   "scripts": {
-    "start": "parcel src/index.html",
-    "prebuild": "rm -rf dist",
-    "build": "parcel build src/index.html",
-    "create-env": "echo {\\\\\\\"host\\\\\\\": \\\\\\\"https://gitlab.ars.de\\\\\\\",\\\\\\\"token\\\\\\\": \\\\\\\"{{access-token}}\\\\\\\"} > src/config/gitlab.json",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "create-env": "echo {'host':'https://gitlab.ars.de','token':'{{access-token}}'} > src/environments/gitlab-config.json"
   },
-  "repository": {
-    "type": "git",
-    "url": "git@gitlab.ars.de:ars/schulungen/tools/gitlab.git"
-  },
+  "private": true,
   "keywords": [
     "gitlab",
     "tools"
   ],
   "author": "Ralf Ueberfuhr (ARS)",
-  "license": "ISC",
-  "devDependencies": {
-    "@parcel/transformer-sass": "^2.5.0",
-    "@types/bootstrap": "^5.1.10",
-    "parcel": "^2.5.0",
-    "typescript": "^4.6.4"
-  },
   "dependencies": {
-    "@popperjs/core": "^2.11.5",
-    "bootstrap": "^5.1.3"
+    "@angular/animations": "~13.3.0",
+    "@angular/cdk": "^13.3.5",
+    "@angular/common": "~13.3.0",
+    "@angular/compiler": "~13.3.0",
+    "@angular/core": "~13.3.0",
+    "@angular/flex-layout": "^13.0.0-beta.38",
+    "@angular/forms": "~13.3.0",
+    "@angular/material": "^13.3.5",
+    "@angular/platform-browser": "~13.3.0",
+    "@angular/platform-browser-dynamic": "~13.3.0",
+    "@angular/router": "~13.3.0",
+    "rxjs": "~7.5.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.11.4"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "~13.3.4",
+    "@angular/cli": "~13.3.4",
+    "@angular/compiler-cli": "~13.3.0",
+    "@types/jasmine": "~3.10.0",
+    "@types/node": "^12.11.1",
+    "jasmine-core": "~4.0.0",
+    "karma": "~6.3.0",
+    "karma-chrome-launcher": "~3.1.0",
+    "karma-coverage": "~2.1.0",
+    "karma-jasmine": "~4.0.0",
+    "karma-jasmine-html-reporter": "~1.7.0",
+    "typescript": "~4.6.2"
   }
 }

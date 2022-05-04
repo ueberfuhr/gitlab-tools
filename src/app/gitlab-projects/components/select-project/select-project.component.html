@@ -1,0 +1,17 @@
+<form>
+  <mat-form-field appearance="fill" fxFlexFill>
+    <mat-label>Projektauswahl</mat-label>
+    <input type="text"
+           placeholder="Name oder ID"
+           aria-label="Bitte Namen oder Projekt-ID eingeben"
+           matInput
+           [formControl]="txtInput"
+           [matAutocomplete]="auto"
+    >
+    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayText" (optionSelected)="onProjectSelected($event)">
+      <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+        {{option.name}} <span style="font-size: 0.8em;">- {{option.namespace.full_path}} (ID: {{option.id}})</span>
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+</form>
