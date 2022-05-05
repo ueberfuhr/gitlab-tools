@@ -82,12 +82,13 @@ export class GitlabService {
    * @return an observable that submits each data set separately
    */
   public callPaginated<T>(resource: string, options?: CallOptions, page = 1, pageSize = 20): Observable<DataSet<T>> {
+    // deferring is important to only lazy fetch data from the server if the pipe limits the count of data
     return defer(() => this.http.request<T[]>(options?.method ?? 'get',
       `${this.config.host}/api/v4/${resource}`,
       {
         body: options?.body,
         params: Object.assign({
-          // pagination
+          // Gitlab pagination
           page,
           per_page: pageSize
         }, options?.params),
@@ -96,15 +97,18 @@ export class GitlabService {
       }).pipe(
       map((response: HttpResponse<T[]>) => {
         const data = response.body ?? [];
+        // read out pagination headers
         const totalHeader = response.headers.get(TOTAL_HEADER);
         const total = totalHeader ? Number(totalHeader) : data.length;
         const totalPagesHeader = response.headers.get(TOTAL_PAGES_HEADER);
         const totalPages = totalPagesHeader ? Number(totalPagesHeader) : page;
+        // transform to mergable object
         return {
           items: data.map(payload => ({payload, total} as DataSet<T>)),
           isLast: page === totalPages
         };
       }),
+      // merge items by invoking the call to the next page (deferred)
       mergeMap(data => {
         const items$ = from(data.items);
         const next$ = data.isLast ? EMPTY : this.callPaginated<T>(resource, options, page + 1, pageSize);
