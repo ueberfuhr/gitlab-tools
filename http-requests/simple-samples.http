@@ -18,4 +18,14 @@ GET {{api}}/projects/{{sample-project-id}}/issues
 Accept: application/json
 PRIVATE-TOKEN: {{token}}
 
+### Read Issues of Project
+GET {{api}}/projects/847/issues?state=opened&with_labels_details=true&page=2&per_page=3
+Accept: application/json
+PRIVATE-TOKEN: {{token}}
+
+### Read Labels of Project
+GET {{api}}/projects/847/labels
+Accept: application/json
+PRIVATE-TOKEN: {{token}}
+
 

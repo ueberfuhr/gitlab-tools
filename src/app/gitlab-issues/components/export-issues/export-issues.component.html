@@ -2,11 +2,12 @@
   <mat-card-title>Export</mat-card-title>
   <mat-card-subtitle>Create a JSON file supporting issues and labels</mat-card-subtitle>
   <mat-card-content>
-    <app-select-project (projectSelected)="onProjectSelected($event)"></app-select-project>
+    <app-project-selector (projectSelected)="onProjectSelected($event)"></app-project-selector>
   </mat-card-content>
   <mat-card-actions>
-    <button mat-button (click)="openProjectInGitlab()" [disabled]="!project" title="Projekt in Gitlab öffnen">
-      <mat-icon>public</mat-icon>
+    <button mat-button [disabled]="!project" title="Issues exportieren" (click)="downloadExportedIssues()">
+      <mat-icon>file_download</mat-icon>
     </button>
+    <app-project-open-in-gitlab-button [project]="project"></app-project-open-in-gitlab-button>
   </mat-card-actions>
 </mat-card>

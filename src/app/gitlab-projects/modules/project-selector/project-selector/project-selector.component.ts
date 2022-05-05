@@ -1,18 +1,18 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {catchError, debounceTime, forkJoin, map, mergeMap, Observable, of} from 'rxjs';
-import {GitlabProject} from '../../models/project.model';
-import {GitlabProjectsService} from '../../services/gitlab-projects.service';
+import {GitlabProject} from '../../../models/project.model';
+import {GitlabProjectsService} from '../../../services/gitlab-projects.service';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 
 @Component({
-  selector: 'app-select-project',
-  templateUrl: './select-project.component.html',
-  styleUrls: ['./select-project.component.scss']
+  selector: 'app-project-selector',
+  templateUrl: './project-selector.component.html',
+  styleUrls: ['./project-selector.component.scss']
 })
-export class SelectProjectComponent implements OnInit {
+export class ProjectSelectorComponent implements OnInit {
   txtInput = new FormControl();
-  filteredOptions?: Observable<GitlabProject[]>;
+  filteredOptions$?: Observable<GitlabProject[]>;
   @Output() projectSelected = new EventEmitter<GitlabProject>();
   project?: GitlabProject;
 
@@ -20,27 +20,27 @@ export class SelectProjectComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.filteredOptions = this.txtInput.valueChanges.pipe(
+    this.filteredOptions$ = this.txtInput.valueChanges.pipe(
       debounceTime(1000),
       mergeMap(value => {
         // search for id
         const id = Number(value);
-        const $projectById = isNaN(id) ? of([]) : this.projects.getProjectById(id)
+        const projectById$ = isNaN(id) ? of([]) : this.projects.getProjectById(id)
           .pipe(
             // transform to array of length 1
             map(project => [project]),
             catchError(() => []),
           );
         // search for name
-        const $projectsByName = value.length < 3 ? of([]) : this.projects.getProjects(value)
+        const projectsByName$ = value.length < 3 ? of([]) : this.projects.getProjects(value)
           .pipe(
             // exclude project with id
             map(projects => projects.filter(p => p.id != id))
           )
-        return forkJoin([$projectById, $projectsByName])
+        return forkJoin([projectById$, projectsByName$])
           .pipe(
             map(result => [...result[0], ...result[1]]),
-            catchError(() =>[])
+            catchError(() => [])
           );
       })
     );
