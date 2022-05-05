@@ -81,7 +81,12 @@ export class GitlabService {
    * If you do not want to read all data, use the <code>take*</code> operators for pipes.
    * @return an observable that submits each data set separately
    */
-  public callPaginated<T>(resource: string, options?: CallOptions, page = 1, pageSize = 20): Observable<DataSet<T>> {
+  callPaginated<T>(resource: string, options?: CallOptions, pageSize = 20): Observable<DataSet<T>> {
+    return this.callPaginatedSincePage(resource, 1, pageSize, options);
+  }
+
+  // uses for recursive call
+  private callPaginatedSincePage<T>(resource: string, page: number, pageSize: number, options?: CallOptions): Observable<DataSet<T>> {
     // deferring is important to only lazy fetch data from the server if the pipe limits the count of data
     return defer(() => this.http.request<T[]>(options?.method ?? 'get',
       `${this.config.host}/api/v4/${resource}`,
@@ -111,7 +116,7 @@ export class GitlabService {
       // merge items by invoking the call to the next page (deferred)
       mergeMap(data => {
         const items$ = from(data.items);
-        const next$ = data.isLast ? EMPTY : this.callPaginated<T>(resource, options, page + 1, pageSize);
+        const next$ = data.isLast ? EMPTY : this.callPaginatedSincePage<T>(resource, page + 1, pageSize, options);
         return concat(items$, next$);
       })
     ));

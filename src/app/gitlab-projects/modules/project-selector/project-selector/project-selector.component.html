@@ -12,6 +12,12 @@
       <mat-option *ngFor="let option of filteredOptions$ | async" [value]="option">
         {{option.name}} <span style="font-size: 0.8em;">- {{option.namespace.full_path}} (ID: {{option.id}})</span>
       </mat-option>
+      <mat-option *ngIf="filteredOptionsMissing==1" disabled>
+        (Ein weiterer Eintrag vorhanden - bitte ggf. genauere Eingabe vornehmen)
+      </mat-option>
+      <mat-option *ngIf="filteredOptionsMissing>1" disabled>
+        (Weitere {{filteredOptionsMissing}} Einträge vorhanden - bitte ggf. genauere Eingabe vornehmen)
+      </mat-option>
     </mat-autocomplete>
   </mat-form-field>
 </form>

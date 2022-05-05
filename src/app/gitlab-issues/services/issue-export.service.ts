@@ -45,7 +45,11 @@ export class IssueExportService {
         map(set => set.payload),
         toArray()
       );
-    const labels$ = this.labels.getLabelsForProject(projectId);
+    const labels$ = this.labels.getLabelsForProject(projectId)
+      .pipe(
+        map(set => set.payload),
+        toArray()
+      );
     return forkJoin([issues$, labels$])
       .pipe(
         // create IssueExport

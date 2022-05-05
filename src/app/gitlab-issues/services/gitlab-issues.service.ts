@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {DataSet, GitlabService} from '../../gitlab-access/services/gitlab.service';
-import {Observable, tap} from 'rxjs';
+import {map, Observable} from 'rxjs';
 import {GitlabIssue, GitlabIssueState} from '../models/gitlab-issue.model';
 
 @Injectable({
@@ -13,11 +13,12 @@ export class GitlabIssuesService {
 
   /**
    * Remove all fields from Gitlab resource that are not needed within this application.
-   * @param issue the object that was received from Gitlab
+   * @param set the object that was received from Gitlab
    * @private the reduced object
    */
-  private static reduce(issue: GitlabIssue): GitlabIssue {
-    return {
+  private static reduce(set: DataSet<GitlabIssue>): DataSet<GitlabIssue> {
+    const issue = set.payload;
+    set.payload = {
       id: issue.id,
       iid: issue.iid,
       title: issue.title,
@@ -26,6 +27,7 @@ export class GitlabIssuesService {
       labels: issue.labels,
       type: issue.type
     };
+    return set;
   }
 
   public getIssuesForProject(projectId: number, options?: {
@@ -37,7 +39,7 @@ export class GitlabIssuesService {
     }
     return this.gitlab.callPaginated<GitlabIssue>(`projects/${projectId}/issues`, {
       params
-    }).pipe(tap(set => set.payload = GitlabIssuesService.reduce(set.payload)));
+    }).pipe(map(GitlabIssuesService.reduce));
   }
 
 }

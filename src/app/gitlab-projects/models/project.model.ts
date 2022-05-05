@@ -1,7 +1,19 @@
+export interface GitlabProjectNamespace {
+  /**
+   * The id of the group.
+   */
+  id: number,
+  /**
+   * The unique path of the group within the Gitlab instance.
+   */
+  full_path: string
+}
+
 /**
  * The model object for a Gitlab project.
  */
 export interface GitlabProject {
+
 
   /**
    * The id of the project within the Gitlab instance.

@@ -1,9 +1,14 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {catchError, debounceTime, forkJoin, map, mergeMap, Observable, of} from 'rxjs';
+import {catchError, debounceTime, filter, forkJoin, map, mergeMap, Observable, of, take, tap, toArray} from 'rxjs';
 import {GitlabProject} from '../../../models/project.model';
 import {GitlabProjectsService} from '../../../services/gitlab-projects.service';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
+
+interface FilterSet<T> {
+  items: T[],
+  total: number
+}
 
 @Component({
   selector: 'app-project-selector',
@@ -13,6 +18,8 @@ import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 export class ProjectSelectorComponent implements OnInit {
   txtInput = new FormControl();
   filteredOptions$?: Observable<GitlabProject[]>;
+  filteredOptionsMissing = 0;
+  @Input() optionsLimit = 20;
   @Output() projectSelected = new EventEmitter<GitlabProject>();
   project?: GitlabProject;
 
@@ -25,22 +32,42 @@ export class ProjectSelectorComponent implements OnInit {
       mergeMap(value => {
         // search for id
         const id = Number(value);
-        const projectById$ = isNaN(id) ? of([]) : this.projects.getProjectById(id)
+        const projectById$ = (isNaN(id) ? of([]) : this.projects.getProjectById(id)
           .pipe(
-            // transform to array of length 1
+            // transform to array of length 1 to make it joinable
             map(project => [project]),
-            catchError(() => []),
+            catchError(() => [])
+          ))
+          .pipe(
+            // transform to filterset
+            map(items => ({items, total: items.length}) as FilterSet<GitlabProject>)
           );
         // search for name
-        const projectsByName$ = value.length < 3 ? of([]) : this.projects.getProjects(value)
+        const projectsByName$ = (value.length < 3 ? of([]) : this.projects.getProjects(value)
           .pipe(
             // exclude project with id
-            map(projects => projects.filter(p => p.id != id))
+            filter(set => set.payload.id != id),
+            // do not catch all entries,  only 20
+            take(this.optionsLimit),
+            toArray(),
+            catchError(() => [])
+          ))
+          .pipe(
+            map(sets => ({
+              items: sets.map(set => set.payload),
+              total: sets.length > 0 ? sets[0].total : 0
+            } as FilterSet<GitlabProject>))
           )
         return forkJoin([projectById$, projectsByName$])
           .pipe(
-            map(result => [...result[0], ...result[1]]),
-            catchError(() => [])
+            map(result => ({
+              items: [...result[0].items, ...result[1].items],
+              total: result[0].total + result[1].total
+            } as FilterSet<GitlabProject>)),
+            tap(set => {
+              this.filteredOptionsMissing = set.total - set.items.length;
+            }),
+            map(set => set.items)
           );
       })
     );
