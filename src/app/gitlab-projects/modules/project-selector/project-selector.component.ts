@@ -1,8 +1,8 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {catchError, debounceTime, filter, forkJoin, map, mergeMap, Observable, of, take, tap, toArray} from 'rxjs';
-import {GitlabProject} from '../../../models/project.model';
-import {GitlabProjectsService} from '../../../services/gitlab-projects.service';
+import {GitlabProject} from '../../models/project.model';
+import {GitlabProjectsService} from '../../services/gitlab-projects.service';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 
 interface FilterSet<T> {

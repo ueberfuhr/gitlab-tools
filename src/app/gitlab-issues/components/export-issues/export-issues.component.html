@@ -5,7 +5,7 @@
     <app-project-selector (projectSelected)="onProjectSelected($event)"></app-project-selector>
   </mat-card-content>
   <mat-card-actions>
-    <button mat-button [disabled]="!project" title="Issues exportieren" (click)="downloadExportedIssues()">
+    <button mat-button [disabled]="!project" title="Run export" (click)="downloadExportedIssues()">
       <mat-icon>file_download</mat-icon>
     </button>
     <app-project-open-in-gitlab-button [project]="project"></app-project-open-in-gitlab-button>

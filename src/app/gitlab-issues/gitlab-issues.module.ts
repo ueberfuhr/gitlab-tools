@@ -7,10 +7,8 @@ import { ExportIssuesComponent } from './components/export-issues/export-issues.
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
-import {ProjectSelectorModule} from '../gitlab-projects/modules/project-selector/project-selector/project-selector.module';
+import {ProjectSelectorModule} from '../gitlab-projects/modules/project-selector/project-selector.module';
 import {ProjectOpenInGitlabButtonModule} from '../gitlab-projects/modules/project-open-in-gitlab-button/project-open-in-gitlab-button.module';
-
-
 
 @NgModule({
   declarations: [

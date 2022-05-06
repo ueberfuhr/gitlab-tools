@@ -1,0 +1,31 @@
+<h1 mat-dialog-title>Gitlab Access Configuration</h1>
+<form #thisForm="ngForm" (ngSubmit)="save()">
+  <mat-dialog-content>
+    <p>{{data.message ?? 'Please enter your account data for Gitlab.'}}</p>
+    <mat-form-field>
+      <mat-label>Host Adress</mat-label>
+      <input matInput required pattern="http(s)?://.+" name="host" [(ngModel)]="config.host">
+    </mat-form-field>
+    <br>
+    <mat-form-field>
+      <mat-label>Access Token</mat-label>
+      <input matInput required [type]="hidePassword ? 'password' : 'text'" name="token" [(ngModel)]="config.token">
+      <!-- necessary because pressing enter the first time enables the first button in the input field -->
+      <button type="submit" [disabled]="!thisForm.valid" [hidden]="true"></button>
+      <!-- this should not be the first button so! -->
+      <button mat-button matSuffix (click)="hidePassword = !hidePassword">
+        <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+      </button>
+    </mat-form-field>
+    <button mat-button color="primary"
+            *ngIf="data.checkValidity"
+            [disabled]="!thisForm.valid"
+            (click)="checkValidity()">
+      Test connection
+    </button>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-raised-button (click)="close()">Cancel</button>
+    <button mat-raised-button [disabled]="!thisForm.valid" class="mat-primary" type="submit">Save</button>
+  </mat-dialog-actions>
+</form>

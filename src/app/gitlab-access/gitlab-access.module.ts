@@ -1,19 +1,21 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import { GitlabConnectionStatusComponent } from './components/gitlab-connection-status/gitlab-connection-status.component';
 import {MatButtonModule} from '@angular/material/button';
-import { GitlabAccessTokenDialogComponent } from './components/gitlab-access-token-dialog/gitlab-access-token-dialog.component';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {FormsModule} from '@angular/forms';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
+import { GitlabConnectionStatusComponent } from './components/gitlab-connection-status/gitlab-connection-status.component';
+import {GitlabConfigDialogComponent} from './components/gitlab-config-dialog/gitlab-config-dialog.component';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatToolbarModule} from '@angular/material/toolbar';
 
 
 @NgModule({
   declarations: [
     GitlabConnectionStatusComponent,
-    GitlabAccessTokenDialogComponent
+    GitlabConfigDialogComponent
   ],
   exports: [
     GitlabConnectionStatusComponent
@@ -25,7 +27,9 @@ import {MatIconModule} from '@angular/material/icon';
     FormsModule,
     MatDialogModule,
     MatInputModule,
-    MatIconModule
+    MatIconModule,
+    MatMenuModule,
+    MatToolbarModule
   ]
 })
 export class GitlabAccessModule { }

@@ -1,9 +1,9 @@
 <form>
   <mat-form-field appearance="fill" fxFlexFill>
-    <mat-label>Projektauswahl</mat-label>
+    <mat-label>Project</mat-label>
     <input type="text"
-           placeholder="Name oder ID"
-           aria-label="Bitte Namen oder Projekt-ID eingeben"
+           placeholder="Name or ID"
+           aria-label="Please enter project name or ID"
            matInput
            [formControl]="txtInput"
            [matAutocomplete]="auto"
@@ -13,10 +13,10 @@
         {{option.name}} <span style="font-size: 0.8em;">- {{option.namespace.full_path}} (ID: {{option.id}})</span>
       </mat-option>
       <mat-option *ngIf="filteredOptionsMissing==1" disabled>
-        (Ein weiterer Eintrag vorhanden - bitte ggf. genauere Eingabe vornehmen)
+        (Another entry available - please input more characters)
       </mat-option>
       <mat-option *ngIf="filteredOptionsMissing>1" disabled>
-        (Weitere {{filteredOptionsMissing}} Einträge vorhanden - bitte ggf. genauere Eingabe vornehmen)
+        ({{filteredOptionsMissing}} further entries available - please input more characters)
       </mat-option>
     </mat-autocomplete>
   </mat-form-field>

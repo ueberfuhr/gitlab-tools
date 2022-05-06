@@ -1,7 +1,6 @@
 import {AfterViewInit, Component, Inject} from '@angular/core';
 import {GITLAB_CONFIG, GitlabConfig} from '../../../../environments/gitlab-config.model';
-import {MatDialog} from '@angular/material/dialog';
-import {GitlabAccessTokenDialogComponent, GitlabAccessTokenDialogInput} from '../gitlab-access-token-dialog/gitlab-access-token-dialog.component';
+import {GitlabConfigDialogService} from '../../services/gitlab-config-dialog.service';
 
 @Component({
   selector: 'app-gitlab-connection-status',
@@ -11,7 +10,7 @@ import {GitlabAccessTokenDialogComponent, GitlabAccessTokenDialogInput} from '..
 export class GitlabConnectionStatusComponent implements AfterViewInit {
 
   constructor(@Inject(GITLAB_CONFIG) public readonly config: GitlabConfig,
-              private readonly dialog: MatDialog) {
+              private readonly dialog: GitlabConfigDialogService) {
   }
 
   openSite(host: string) {
@@ -19,17 +18,13 @@ export class GitlabConnectionStatusComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.dialog.open(GitlabAccessTokenDialogComponent, {
-      autoFocus: true,
-      minWidth: '20em',
-      data: {
-        token: this.config.token
-      } as GitlabAccessTokenDialogInput
-    }).afterClosed().subscribe(token => {
-      if (token) {
-        this.config.token = token;
+    this.dialog.open({
+      config: this.config
+    }).subscribe(result => {
+      if(result.successful) {
+        Object.assign(this.config, result.config ?? this.config);
       }
-    });
+    })
   }
 
 }
