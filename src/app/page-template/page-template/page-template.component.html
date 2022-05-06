@@ -16,10 +16,7 @@
       </div>
       <div>
         {{title}}
-        <span style="font-size: 0.6em; font-style: italic; font-weight: lighter; margin-left: 3em; margin-right: 1em;">
-          ... connected to
-        </span>
-        <button mat-flat-button color="accent"><a href="{{config.host}}" target="_blank">{{config.host}}</a></button>
+        <app-gitlab-connection-status></app-gitlab-connection-status>
       </div>
       <div fxFlex fxLayout fxLayoutAlign="flex-end" fxHide.xs>
         <ul fxLayout fxLayoutGap="20px" class="navigation-items">

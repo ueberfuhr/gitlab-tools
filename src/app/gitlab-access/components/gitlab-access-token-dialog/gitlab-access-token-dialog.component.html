@@ -1,0 +1,20 @@
+<h1 mat-dialog-title>Gitlab Access Token</h1>
+<form (ngSubmit)="save()">
+<mat-dialog-content>
+  <p>{{data.message ?? 'Bitte gib einen Access-Token für die Zugriffe auf Gitlab an.'}}</p>
+  <mat-form-field>
+    <input required [type]="hidePassword ? 'password' : 'text'" name="token" matInput [(ngModel)]="data.token">
+    <!-- necessary because pressing enter the first time enables the first button in the input field -->
+    <button type="submit" [hidden]="true"></button>
+    <!-- this should not be the first button so! -->
+    <button mat-button matSuffix (click)="hidePassword = !hidePassword">
+      <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+    </button>
+    </mat-form-field>
+  <button mat-button color="primary">Verbindung testen</button>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-raised-button (click)="close()">Abbrechen</button>
+  <button mat-raised-button class="mat-primary" type="submit">OK</button>
+</mat-dialog-actions>
+</form>

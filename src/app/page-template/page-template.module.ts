@@ -8,6 +8,7 @@ import {FlexLayoutModule} from '@angular/flex-layout';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule} from '@angular/router';
 import {PageTemplateComponent} from './page-template/page-template.component';
+import {GitlabAccessModule} from '../gitlab-access/gitlab-access.module';
 import {MatButtonModule} from '@angular/material/button';
 
 @NgModule({
@@ -26,6 +27,7 @@ import {MatButtonModule} from '@angular/material/button';
     MatMenuModule,
     MatToolbarModule,
     MatSidenavModule,
+    GitlabAccessModule,
     MatButtonModule,
   ]
 })

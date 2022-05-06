@@ -1,5 +1,4 @@
-import {Component, Inject, Input} from '@angular/core';
-import {GITLAB_CONFIG, GitlabConfig} from '../../../environments/gitlab-config.model';
+import {Component, Input} from '@angular/core';
 
 /**
  * An entry that is made into the navigation.
@@ -30,8 +29,5 @@ export class PageTemplateComponent {
 
   @Input() title = '';
   @Input() navigation: NavigationEntry[] = [];
-
-  constructor(@Inject(GITLAB_CONFIG) public readonly config: GitlabConfig) {
-  }
 
 }
