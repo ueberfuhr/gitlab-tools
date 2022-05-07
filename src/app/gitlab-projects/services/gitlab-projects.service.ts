@@ -11,7 +11,7 @@ export class GitlabProjectsService {
   constructor(private readonly gitlab: GitlabService) {
   }
 
-  public getProjectById(id: number): Observable<GitlabProject> {
+  getProjectById(id: number): Observable<GitlabProject> {
     return this.gitlab.call(`projects/${id}`);
   }
 
@@ -40,7 +40,7 @@ export class GitlabProjectsService {
     return set;
   }
 
-  public getProjects(search?: string): Observable<DataSet<GitlabProject>> {
+  getProjects(search?: string): Observable<DataSet<GitlabProject>> {
     return this.gitlab.callPaginated<GitlabProject>('projects', {
       params: {
         search: search ?? '',

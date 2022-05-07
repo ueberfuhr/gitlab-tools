@@ -14,19 +14,16 @@
           </ng-container>
         </mat-menu>
       </div>
-      <div>
-        {{title}}
-        <app-gitlab-connection-status style="margin-left: 1em;"></app-gitlab-connection-status>
-      </div>
+      <span>{{title}}</span>
+      <app-gitlab-connection-status style="margin-left: 1em;"></app-gitlab-connection-status>
+
       <div fxFlex fxLayout fxLayoutAlign="flex-end" fxHide.xs>
-        <ul fxLayout fxLayoutGap="20px" class="navigation-items">
-          <li *ngFor="let entry of navigation">
-            <a [routerLink]="entry.routerLink">
-              <mat-icon *ngIf="entry.icon" class="icon">{{entry.icon}}</mat-icon>
-              <span class="label">{{entry.label}}</span>
-            </a>
-          </li>
-        </ul>
+        <button *ngFor="let entry of navigation"
+                mat-icon-button title="{{entry.label}}"
+                (click)="this.router.navigateByUrl(entry.routerLink)">
+          <mat-icon *ngIf="entry.icon" class="icon">{{entry.icon}}</mat-icon>
+          <span *ngIf="!entry.icon" class="label">{{entry.label}}</span>
+        </button>
       </div>
     </mat-toolbar>
     <main>

@@ -10,6 +10,7 @@ import { GitlabConnectionStatusComponent } from './components/gitlab-connection-
 import {GitlabConfigDialogComponent} from './components/gitlab-config-dialog/gitlab-config-dialog.component';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatBadgeModule} from '@angular/material/badge';
 
 
 @NgModule({
@@ -29,7 +30,8 @@ import {MatToolbarModule} from '@angular/material/toolbar';
     MatInputModule,
     MatIconModule,
     MatMenuModule,
-    MatToolbarModule
+    MatToolbarModule,
+    MatBadgeModule
   ]
 })
 export class GitlabAccessModule { }

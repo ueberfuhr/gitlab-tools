@@ -9,6 +9,7 @@ import {GitlabConfigDialogInput, GitlabConfigDialogResult} from '../../models/gi
 export class GitlabConfigDialogComponent {
 
   hidePassword = true;
+  lastCheckSuccessful = true;
   readonly config = Object.assign({}, this.data.config);
 
   constructor(private readonly dialogRef: MatDialogRef<GitlabConfigDialogComponent>,
@@ -16,9 +17,7 @@ export class GitlabConfigDialogComponent {
   }
 
   close() {
-    this.dialogRef.close({
-      successful: false
-    } as GitlabConfigDialogResult);
+    this.dialogRef.close();
   }
 
   save() {
@@ -29,8 +28,10 @@ export class GitlabConfigDialogComponent {
   }
 
   checkValidity() {
-    if (this.data.checkValidity) {
-      this.data.checkValidity(this.config);
+    if (this.data.connectionTester) {
+      this.data.connectionTester.testConnection(this.config).subscribe(success => {
+        this.lastCheckSuccessful = success;
+      });
     }
   }
 }

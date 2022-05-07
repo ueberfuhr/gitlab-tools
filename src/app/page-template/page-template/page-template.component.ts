@@ -1,4 +1,5 @@
 import {Component, Input} from '@angular/core';
+import {Router} from '@angular/router';
 
 /**
  * An entry that is made into the navigation.
@@ -29,5 +30,8 @@ export class PageTemplateComponent {
 
   @Input() title = '';
   @Input() navigation: NavigationEntry[] = [];
+
+  constructor(public readonly router: Router) {
+  }
 
 }

@@ -1,7 +1,7 @@
 import {Inject, Injectable} from '@angular/core';
 import {GITLAB_CONFIG, GitlabConfig} from '../../../environments/gitlab-config.model';
 import {HttpClient, HttpResponse} from '@angular/common/http';
-import {concat, defer, EMPTY, from, map, mergeMap, Observable} from 'rxjs';
+import {catchError, concat, defer, EMPTY, from, map, mergeMap, Observable, Subject, tap, throwError} from 'rxjs';
 
 export interface CallOptions {
   /**
@@ -49,10 +49,22 @@ export interface DataSet<T> {
 const TOTAL_HEADER = 'X-Total';
 const TOTAL_PAGES_HEADER = 'X-Total-Pages'
 
+export interface GitlabAccess {
+
+}
+export interface GitlabAccessError {
+
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class GitlabService {
+
+  private readonly errorsSubject = new Subject<GitlabAccessError>();
+  public readonly errors = this.errorsSubject.asObservable();
+  private readonly accessesSubject = new Subject<GitlabAccess>();
+  public readonly accesses = this.accessesSubject.asObservable();
 
   constructor(
     @Inject(GITLAB_CONFIG) private readonly config: GitlabConfig,
@@ -72,7 +84,14 @@ export class GitlabService {
         body: options?.body,
         params: options?.params,
         headers: Object.assign({'PRIVATE-TOKEN': this.config.token}, options?.headers)
-      });
+      })
+      .pipe(
+        catchError(err => {
+          this.errorsSubject.next({});
+          return throwError(() => err);
+        }),
+        tap(() => this.accessesSubject.next({}))
+      );
   }
 
   /**
@@ -99,27 +118,33 @@ export class GitlabService {
         }, options?.params),
         headers: Object.assign({'PRIVATE-TOKEN': this.config.token}, options?.headers),
         observe: 'response',
-      }).pipe(
-      map((response: HttpResponse<T[]>) => {
-        const data = response.body ?? [];
-        // read out pagination headers
-        const totalHeader = response.headers.get(TOTAL_HEADER);
-        const total = totalHeader ? Number(totalHeader) : data.length;
-        const totalPagesHeader = response.headers.get(TOTAL_PAGES_HEADER);
-        const totalPages = totalPagesHeader ? Number(totalPagesHeader) : page;
-        // transform to mergable object
-        return {
-          items: data.map(payload => ({payload, total} as DataSet<T>)),
-          isLast: page === totalPages
-        };
-      }),
-      // merge items by invoking the call to the next page (deferred)
-      mergeMap(data => {
-        const items$ = from(data.items);
-        const next$ = data.isLast ? EMPTY : this.callPaginatedSincePage<T>(resource, page + 1, pageSize, options);
-        return concat(items$, next$);
       })
-    ));
+      .pipe(
+        catchError(err => {
+          this.errorsSubject.next({});
+          return throwError(() => err);
+        }),
+        tap(() => this.accessesSubject.next({})),
+        map((response: HttpResponse<T[]>) => {
+          const data = response.body ?? [];
+          // read out pagination headers
+          const totalHeader = response.headers.get(TOTAL_HEADER);
+          const total = totalHeader ? Number(totalHeader) : data.length;
+          const totalPagesHeader = response.headers.get(TOTAL_PAGES_HEADER);
+          const totalPages = totalPagesHeader ? Number(totalPagesHeader) : page;
+          // transform to mergable object
+          return {
+            items: data.map(payload => ({payload, total} as DataSet<T>)),
+            isLast: page === totalPages
+          };
+        }),
+        // merge items by invoking the call to the next page (deferred)
+        mergeMap(data => {
+          const items$ = from(data.items);
+          const next$ = data.isLast ? EMPTY : this.callPaginatedSincePage<T>(resource, page + 1, pageSize, options);
+          return concat(items$, next$);
+        })
+      ));
   }
 
 }

@@ -18,6 +18,7 @@ export class GitlabConfigDialogService {
         autoFocus: true,
         minWidth: '20em',
         data: input,
+        disableClose: true
       }).afterClosed().pipe(
         map(result => result ?? {
           successful: false
