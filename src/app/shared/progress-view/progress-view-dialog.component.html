@@ -1,0 +1,7 @@
+<h1 mat-dialog-title>{{data.title ?? 'Work In Progress...'}}</h1>
+<mat-dialog-content>
+  <mat-progress-spinner  style="margin:0 auto;" [mode]="data.mode ?? 'determinate'" [value]="currentStatus?.progress"></mat-progress-spinner>
+  <div style="font-style: italic; font-size: 0.8em; text-align: center;">
+    {{currentStatus?.description}}
+  </div>
+</mat-dialog-content>

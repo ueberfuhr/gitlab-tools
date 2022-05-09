@@ -1,0 +1,7 @@
+<span *ngIf="model"
+      class="label"
+      [style.background-color]="model.color"
+      [title]="model.description"
+      [matBadge]="displayProjectOrGroupBadge ? (model.is_project_label ? 'P' : 'G') : ''">
+  {{model.name}}
+</span>

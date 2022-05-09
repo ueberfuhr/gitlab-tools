@@ -1,4 +1,5 @@
 export type GitlabIssueState = "open" | "closed";
+export type GitlabIssueType = "issue" | "incident" | "test_case";
 
 /**
  * A Gitlab issue.
@@ -6,9 +7,9 @@ export type GitlabIssueState = "open" | "closed";
 export interface GitlabIssue {
 
   /**
-   * The ID that is unique across all projects.
+   * The ID that is unique across all projects. Can be empty when created.
    */
-  id: number;
+  id?: number;
   /**
    * The internal ID (displayed in the web UI) that’s unique in the scope of a single project.
    * See {@link https://docs.gitlab.com/ee/api/#id-vs-iid} for more information.
@@ -31,8 +32,8 @@ export interface GitlabIssue {
    */
   labels: string[];
   /**
-   * The type. Is <code>"ISSUE"</code> in every case.
+   * The type of issue.
    */
-  type: "ISSUE";
+  issue_type: GitlabIssueType;
 
 }

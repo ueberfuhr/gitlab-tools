@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {map, Observable} from 'rxjs';
 import {GitlabLabel} from '../models/gitlab-label.model';
 import {DataSet, GitlabService} from '../../gitlab-access/services/gitlab.service';
+import {GitlabProject} from '../../gitlab-projects/models/project.model';
 
 @Injectable({
   providedIn: 'root'
@@ -16,21 +17,58 @@ export class GitlabLabelsService {
    * @param set the object that was received from Gitlab
    * @private the reduced object
    */
-  private static reduce(set: DataSet<GitlabLabel>): DataSet<GitlabLabel> {
-    const label = set.payload;
-    set.payload = {
+  private static reduceSet(set: DataSet<GitlabLabel>): DataSet<GitlabLabel> {
+    set.payload = GitlabLabelsService.reduce(set.payload)
+    return set;
+  }
+
+  private static reduce(label: GitlabLabel): GitlabLabel {
+    return {
       id: label.id,
       color: label.color,
       description: label.description,
       name: label.name,
-      is_project_label: label.is_project_label,
-      text_color: label.text_color
+      is_project_label: label.is_project_label
     };
-    return set;
   }
 
-  public getLabelsForProject(projectId: number): Observable<DataSet<GitlabLabel>> {
+  getLabelsForProject(projectId: number): Observable<DataSet<GitlabLabel>> {
     return this.gitlab.callPaginated<GitlabLabel>(`projects/${projectId}/labels`).pipe(
+      map(GitlabLabelsService.reduceSet)
+    );
+  }
+
+  create(project: GitlabProject,label: GitlabLabel) {
+    return label.is_project_label ?
+      this.createForProject(label, project.id) :
+      this.createForGroup(label, project.namespace.id);
+  }
+
+  private createForProject(label: GitlabLabel, projectId: number): Observable<GitlabLabel> {
+    return this.gitlab.call<GitlabLabel>(`projects/${projectId}/labels`, {
+      method: 'post',
+      params: {
+        name: label.name,
+        description: label.description ?? '',
+        color: label.color,
+      }
+    }).pipe(
+      map(GitlabLabelsService.reduce)
+    );
+  }
+
+  private createForGroup(label: GitlabLabel, groupId: number): Observable<GitlabLabel> {
+    return this.gitlab.call<GitlabLabel>(`groups/${groupId}/labels`, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: {
+        name: label.name,
+        description: label.description ?? '',
+        color: label.color,
+      }
+    }).pipe(
       map(GitlabLabelsService.reduce)
     );
   }

@@ -1,4 +1,5 @@
 import {Component} from '@angular/core';
+import {GitlabProject} from '../../../gitlab-projects/models/project.model';
 
 @Component({
   selector: 'app-landing-page',
@@ -7,4 +8,9 @@ import {Component} from '@angular/core';
 })
 export class LandingPageComponent {
 
+  project?: GitlabProject;
+
+  onProjectSelected($event: GitlabProject) {
+    this.project = $event;
+  }
 }

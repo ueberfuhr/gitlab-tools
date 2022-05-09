@@ -1,4 +1,4 @@
-import {GitlabIssueState} from './gitlab-issue.model';
+import {GitlabIssueState, GitlabIssueType} from './gitlab-issue.model';
 
 /**
  * A Gitlab issue model for exchange.
@@ -26,6 +26,10 @@ export interface ExchangeIssue {
    * The labels of the issue.
    */
   labels: string[];
+  /**
+   * The type of issue.
+   */
+  issue_type: GitlabIssueType;
 
 }
 
@@ -42,10 +46,6 @@ export interface ExchangeLabel {
    * A description for the label.
    */
   description?: string,
-  /**
-   * The label text-color as hex string (<code>#803487</code>).
-   */
-  text_color: string,
   /**
    * The label background-color as hex string (<code>#FFFFFF</code>).
    */

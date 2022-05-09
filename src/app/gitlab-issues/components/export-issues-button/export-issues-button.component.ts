@@ -1,23 +1,19 @@
-import {Component} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {GitlabProject} from '../../../gitlab-projects/models/project.model';
 import {DynamicDownloadService} from '../../../shared/services/dynamic-download.service';
 import {IssueExportService} from '../../services/issue-export.service';
 
 @Component({
-  selector: 'app-export-issues',
-  templateUrl: './export-issues.component.html',
-  styleUrls: ['./export-issues.component.scss']
+  selector: 'app-export-issues-button',
+  templateUrl: './export-issues-button.component.html',
+  styleUrls: ['./export-issues-button.component.scss']
 })
-export class ExportIssuesComponent {
+export class ExportIssuesButtonComponent {
 
-  project?: GitlabProject;
+  @Input() project?: GitlabProject;
 
   constructor(private readonly exportService: IssueExportService,
               private readonly downloadService: DynamicDownloadService) {
-  }
-
-  onProjectSelected(project: GitlabProject) {
-    this.project = project;
   }
 
   downloadExportedIssues(): void {

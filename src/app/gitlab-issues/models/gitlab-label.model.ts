@@ -4,9 +4,9 @@
 export interface GitlabLabel {
 
   /**
-   * The is of the label.
+   * The id of the label. This is empty when creating a label.
    */
-  id: number,
+  id?: number,
   /**
    * The name of the label.
    */
@@ -15,10 +15,6 @@ export interface GitlabLabel {
    * A description for the label.
    */
   description?: string,
-  /**
-   * The label text-color as hex string (<code>#803487</code>).
-   */
-  text_color: string,
   /**
    * The label background-color as hex string (<code>#FFFFFF</code>).
    */

@@ -33,9 +33,9 @@ export class GitlabConnectionStatusComponent implements OnInit, AfterViewInit, O
   ngOnInit(): void {
     this.gitlabErrorsSubscription = this.gitlab.errors.subscribe(() => {
       this.lastAccessSuccessful = false;
-      this.snackBar.open('Test', 'Action', {
-        duration: 5000
-      });
+      this.snackBar
+        .open('Gitlab Connection is broken.', 'Edit settings...')
+        .onAction().subscribe(() => this.openSettings());
     });
     this.gitlabAccessesSubscription = this.gitlab.accesses.subscribe(() => {
       this.lastAccessSuccessful = true;
@@ -43,7 +43,8 @@ export class GitlabConnectionStatusComponent implements OnInit, AfterViewInit, O
   }
 
   ngOnDestroy(): void {
-    this.gitlabErrorsSubscription?.unsubscribe();
+    this.gitlabErrorsSubscription?.unsubscribe()
+    this.gitlabAccessesSubscription?.unsubscribe();
   }
 
 
@@ -54,7 +55,7 @@ export class GitlabConnectionStatusComponent implements OnInit, AfterViewInit, O
   ngAfterViewInit(): void {
     this.testConnection(this.config).subscribe(success => {
       if (!success) {
-        this.openSettings('Your configuration is not yet valid, please enter your access data.');
+        this.openSettings('Gitlab access failed. Please check:');
       }
     });
   }
@@ -79,9 +80,7 @@ export class GitlabConnectionStatusComponent implements OnInit, AfterViewInit, O
       Object.assign(this.config, config);
       return this.users.getCurrentUser().pipe(
         map(user => {
-          this.snackBar.open(`Hallo ${user.name}!`, 'Verbindung erfolgreich.', {
-            duration: 5000
-          });
+          this.snackBar.open(`Hallo ${user.name}!`);
           return true;
         }),
         catchError(() => of(false))
