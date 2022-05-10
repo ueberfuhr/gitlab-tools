@@ -1,5 +1,7 @@
 **/.*
 !.gitignore
+!.editorconfig
+!.browserslistrc
 node_modules
 dist
 src/environments/**.json
