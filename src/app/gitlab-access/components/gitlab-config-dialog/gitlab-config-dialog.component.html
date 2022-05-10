@@ -4,12 +4,16 @@
     <p>{{data.message ?? 'Please enter your account data for Gitlab.'}}</p>
     <mat-form-field>
       <mat-label>Host Adress</mat-label>
-      <input matInput required pattern="http(s)?://.+" name="host" [(ngModel)]="config.host">
+      <input matInput required pattern="http(s)?://.+" name="host" [(ngModel)]="config.host" autocomplete="url">
     </mat-form-field>
     <br>
     <mat-form-field>
       <mat-label>Access Token</mat-label>
-      <input matInput required [type]="hidePassword ? 'password' : 'text'" name="token" [(ngModel)]="config.token">
+      <input matInput required
+             [type]="hidePassword ? 'password' : 'text'"
+             name="token"
+             [(ngModel)]="config.token"
+             autocomplete="current-password">
       <!-- necessary because pressing enter the first time enables the first button in the input field -->
       <button type="submit" [disabled]="!thisForm.valid" [hidden]="true"></button>
       <!-- this should not be the first button so! -->
