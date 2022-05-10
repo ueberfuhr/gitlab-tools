@@ -20,6 +20,7 @@ export class ProjectSelectorComponent implements OnInit {
   filteredOptions$?: Observable<GitlabProject[]>;
   filteredOptionsMissing = 0;
   @Input() optionsLimit = 20;
+  @Input() label = 'Project';
   @Output() projectSelected = new EventEmitter<GitlabProject>();
   project?: GitlabProject;
 

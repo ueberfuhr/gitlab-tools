@@ -2,6 +2,7 @@ import {Component, Input} from '@angular/core';
 import {GitlabProject} from '../../../gitlab-projects/models/project.model';
 import {DynamicDownloadService} from '../../../shared/services/dynamic-download.service';
 import {IssueExportService} from '../../services/issue-export.service';
+import {ThemePalette} from '@angular/material/core';
 
 @Component({
   selector: 'app-export-issues-button',
@@ -11,6 +12,7 @@ import {IssueExportService} from '../../services/issue-export.service';
 export class ExportIssuesButtonComponent {
 
   @Input() project?: GitlabProject;
+  @Input() color?: ThemePalette;
 
   constructor(private readonly exportService: IssueExportService,
               private readonly downloadService: DynamicDownloadService) {

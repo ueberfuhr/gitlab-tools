@@ -1,14 +1,2 @@
 <h2>Issue Management</h2>
-<mat-card>
-  <mat-card-title>Select project</mat-card-title>
-  <mat-card-content>
-    <app-project-selector (projectSelected)="onProjectSelected($event)"></app-project-selector>
-  </mat-card-content>
-  <mat-card-actions>
-    <app-project-open-in-gitlab-button [project]="project"></app-project-open-in-gitlab-button>
-    <app-export-issues-button [project]="project"></app-export-issues-button>
-  </mat-card-actions>
-</mat-card>
-<br>
-<app-import-issues-card [project]="project"></app-import-issues-card>
-
+<app-issue-exchange-card></app-issue-exchange-card>
