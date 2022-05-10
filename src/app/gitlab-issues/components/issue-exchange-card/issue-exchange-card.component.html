@@ -6,7 +6,9 @@
   <mat-card-content>
     <div style="margin-top: 2em;">
       <app-project-selector label="Select a project to export issues" (projectSelected)="onSourceSelected($event)">
-        <app-export-issues-button matSuffix color="primary" [project]="source"></app-export-issues-button>
+        <button mat-button color="primary" [disabled]="!source" title="Run export" (click)="downloadExportedIssues()">
+          <mat-icon>file_download</mat-icon>
+        </button>
       </app-project-selector>
     </div>
     <div fxLayout="row" fxLayoutGap="40">

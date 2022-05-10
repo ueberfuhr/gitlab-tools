@@ -5,6 +5,7 @@ import {IssueExportService} from '../../services/issue-export.service';
 import {ProgressService} from '../../../shared/progress-view/progress.service';
 import {IssueImportService} from '../../services/issue-import.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {DynamicDownloadService} from '../../../shared/services/dynamic-download.service';
 
 @Component({
   selector: 'app-issue-exchange-card',
@@ -20,7 +21,8 @@ export class IssueExchangeCardComponent {
   constructor(private readonly issueExportService: IssueExportService,
               private readonly progressService: ProgressService,
               private readonly importService: IssueImportService,
-              private readonly snackBar: MatSnackBar) {
+              private readonly snackBar: MatSnackBar,
+              private readonly downloadService: DynamicDownloadService) {
   }
 
   importDataFromProject(): void {
@@ -53,6 +55,20 @@ export class IssueExchangeCardComponent {
       this.importService
         .import(this.target!, this.data!)
         .subscribe(result => this.snackBar.open(`Successfully imported ${result.issues.length} issue(s) and ${result.labels.length} label(s)`));
+    }
+  }
+
+  downloadExportedIssues(): void {
+    if (this.source) {
+      this.issueExportService.export(this.source.id)
+        .subscribe(data => {
+          // start download
+          this.downloadService.download({
+            fileName: 'issues.json',
+            contentType: 'text/json',
+            content: JSON.stringify(data, undefined, 2)
+          })
+        });
     }
   }
 

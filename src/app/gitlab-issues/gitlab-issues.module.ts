@@ -11,8 +11,6 @@ import {ProjectOpenInGitlabButtonModule} from '../gitlab-projects/modules/projec
 import {MatInputModule} from '@angular/material/input';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {FormsModule} from '@angular/forms';
-import {ImportIssuesButtonComponent} from './components/import-issues-button/import-issues-button.component';
-import {ExportIssuesButtonComponent} from './components/export-issues-button/export-issues-button.component';
 import {FileDragDropModule} from '../shared/file-drag-drop/file-drag-drop.module';
 import {FlexModule} from '@angular/flex-layout';
 import {IssueExchangeModelViewerComponent} from './components/issue-exchange-model-viewer/issue-exchange-model-viewer.component';
@@ -26,8 +24,6 @@ import {IssueExchangeCardComponent} from './components/issue-exchange-card/issue
 @NgModule({
   declarations: [
     LandingPageComponent,
-    ImportIssuesButtonComponent,
-    ExportIssuesButtonComponent,
     IssueExchangeModelViewerComponent,
     LabelComponent,
     IssueExchangeCardComponent,
