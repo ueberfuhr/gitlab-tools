@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "create-env": "echo {\"host\":\"https://gitlab.ars.de\",\"token\":\"{{access-token}}\"} > src/environments/gitlab-config.json"
+    "create-env": "echo {\"host\":\"https://gitlab.ars.de\",\"token\":\"your-access-token\"} > src/environments/gitlab-config.json"
   },
   "private": true,
   "keywords": [
