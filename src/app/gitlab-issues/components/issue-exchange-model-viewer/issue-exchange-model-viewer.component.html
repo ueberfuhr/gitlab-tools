@@ -1,25 +1,30 @@
-<div *ngIf="model">
-  <div class="labels" *ngIf="model.labels.length>0">
-    <app-label *ngFor="let label of model.labels"
-               [model]="label"
-               [displayProjectOrGroupBadge]="true"
-               style="margin-right: 2em;">
-    </app-label>
-  </div>
-  <div class="issues" *ngIf="model.issues.length>0">
-    <mat-list>
-      <mat-list-item *ngFor="let issue of model.issues; index as index">
-        <h4 mat-line>#{{index + 1}}: {{issue.title}}</h4>
-        <span mat-line>
+<div *ngIf="model!== undefined; else nodata">
+  <ng-container *ngIf="model.issues.length>0; else emptyissues">
+    <div class="labels" *ngIf="model.labels.length>0">
+      <app-label *ngFor="let label of model.labels"
+                 [model]="label"
+                 [displayProjectOrGroupBadge]="true"
+                 style="margin-right: 2em;">
+      </app-label>
+    </div>
+    <div class="issues" *ngIf="model.issues.length>0">
+      <mat-list>
+        <mat-list-item *ngFor="let issue of model.issues; index as index">
+          <h4 mat-line>#{{index + 1}}: {{issue.title}}</h4>
+          <span mat-line>
           <app-label *ngFor="let label of getLabelsByName(issue.labels)"
                      [model]="label"
                      style="margin-right: 2em; font-size: 0.6em;">
           </app-label>
         </span>
-      </mat-list-item>
-    </mat-list>
-  </div>
+        </mat-list-item>
+      </mat-list>
+    </div>
+  </ng-container>
 </div>
-<div *ngIf="!model">
+<ng-template #nodata>
   (no data selected)
-</div>
+</ng-template>
+<ng-template #emptyissues>
+  (no issues available)
+</ng-template>

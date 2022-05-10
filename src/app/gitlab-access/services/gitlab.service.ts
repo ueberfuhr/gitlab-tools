@@ -1,6 +1,6 @@
 import {Inject, Injectable} from '@angular/core';
 import {GITLAB_CONFIG, GitlabConfig} from '../../../environments/gitlab-config.model';
-import {HttpClient, HttpResponse} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpResponse} from '@angular/common/http';
 import {catchError, concat, defer, EMPTY, from, map, mergeMap, Observable, Subject, tap, throwError} from 'rxjs';
 
 export interface CallOptions {
@@ -53,7 +53,7 @@ export interface GitlabAccess {
 
 }
 export interface GitlabAccessError {
-
+  status: number;
 }
 
 @Injectable({
@@ -86,8 +86,10 @@ export class GitlabService {
         headers: Object.assign({'PRIVATE-TOKEN': this.config.token}, options?.headers)
       })
       .pipe(
-        catchError(err => {
-          this.errorsSubject.next({});
+        catchError((err: HttpErrorResponse) => {
+          this.errorsSubject.next({
+            status: err.status
+          });
           return throwError(() => err);
         }),
         tap(() => this.accessesSubject.next({}))
@@ -121,7 +123,9 @@ export class GitlabService {
       })
       .pipe(
         catchError(err => {
-          this.errorsSubject.next({});
+          this.errorsSubject.next({
+            status: err.status
+          });
           return throwError(() => err);
         }),
         tap(() => this.accessesSubject.next({})),

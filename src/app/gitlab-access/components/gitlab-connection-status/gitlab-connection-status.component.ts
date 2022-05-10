@@ -18,6 +18,7 @@ export class GitlabConnectionStatusComponent implements OnInit, AfterViewInit, O
   private gitlabAccessesSubscription?: Subscription;
   private gitlabErrorsSubscription?: Subscription;
   lastAccessSuccessful?: boolean;
+  settingsDialogOpen = false;
 
   readonly warn: ThemePalette = 'warn';
   readonly accent: ThemePalette = 'accent';
@@ -31,11 +32,26 @@ export class GitlabConnectionStatusComponent implements OnInit, AfterViewInit, O
   }
 
   ngOnInit(): void {
-    this.gitlabErrorsSubscription = this.gitlab.errors.subscribe(() => {
-      this.lastAccessSuccessful = false;
-      this.snackBar
-        .open('Gitlab Connection is broken.', 'Edit settings...')
-        .onAction().subscribe(() => this.openSettings());
+    this.gitlabErrorsSubscription = this.gitlab.errors.subscribe(err => {
+      switch (err.status) {
+        case 401:
+          this.lastAccessSuccessful = false;
+          if (this.settingsDialogOpen) {
+            this.snackBar.open('Gitlab Connection Authentication failed.');
+          } else {
+            this.snackBar
+              .open('Gitlab Connection Authentication failed.', 'Edit settings...')
+              .onAction().subscribe(() => this.openSettings());
+          }
+          break;
+        case 404:
+          // don't do anything
+          break;
+        default:
+          this.lastAccessSuccessful = false;
+          this.snackBar.open('Gitlab Connection is broken.');
+          break;
+      }
     });
     this.gitlabAccessesSubscription = this.gitlab.accesses.subscribe(() => {
       this.lastAccessSuccessful = true;
@@ -61,11 +77,13 @@ export class GitlabConnectionStatusComponent implements OnInit, AfterViewInit, O
   }
 
   openSettings(message?: string): void {
+    this.settingsDialogOpen = true;
     this.dialog.open({
       config: this.config,
       message,
       connectionTester: this
     }).subscribe(result => {
+      this.settingsDialogOpen = false;
       if (result.successful) {
         Object.assign(this.config, result.config ?? this.config);
       }

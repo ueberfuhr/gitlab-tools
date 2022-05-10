@@ -28,7 +28,7 @@ export class ProjectSelectorComponent implements OnInit {
 
   ngOnInit(): void {
     this.filteredOptions$ = this.txtInput.valueChanges.pipe(
-      debounceTime(200),
+      debounceTime(500),
       mergeMap(value => {
         if (value === '') {
           return of([]);
