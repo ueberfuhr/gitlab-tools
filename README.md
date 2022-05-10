@@ -1,4 +1,4 @@
-# GitLab-Tools
+# Gitlab-Tools
 
 Ein Projekt mit Beispiel-Skripten für die automatisierte Verwendung von GitLab mithilfe der [REST API](https://docs.gitlab.com/ee/api/).
 
@@ -11,13 +11,19 @@ Bevor die Skripte laufen können, muss im Git ein Access Token für Deinen Accou
 ![img.png](doc/img.png)
 ![img_1.png](doc/img_1.png)
 
-### Testprojekt einrichten
+Das Access Token sowie die URL zum Gitlab erstellst Du als Datei
+- `src/environments/gitlab-config.json` (für lokales Testen)
+- `gitlab-config.json` im Wurzelverzeichnis der gebauten Anwendung vor dem Deployment
 
-Weiterhin erstellst Du Dir ein eigenes Testprojekt, in dem Du Schreibberechtigung hast.
+**Hinweis:** Du kannst in der lokalen Testumgebung die Datei initial generieren mit dem Befehl
 
-### IntelliJ konfigurieren
+```bash
+npm run create-env
+```
 
-Im IntelliJ erstellst Du Dir eine private Umgebungskonfiguration für den HTTP Client und trägst dort die Daten ein:
+### IntelliJ HttpClient konfigurieren
+
+Im IntelliJ erstellst Du Dir eine private Umgebungskonfiguration für den HTTP Client (`http-requests/http-client.private.env.json`) und trägst dort die Daten ein:
 
 ```json
 {
@@ -28,5 +34,4 @@ Im IntelliJ erstellst Du Dir eine private Umgebungskonfiguration für den HTTP C
 }
 ```
 
-Das Access-Token trägst Du außerdem in die [Konfigurationsdatei der Anwendung](src/config/gitlab.json) ein.
-Beide Dateien sind von der Versionierung ausgeschlossen.
+In der Datei `http-requests/http-client.env.json` passt Du außerdem die Gitlab-URL an.
