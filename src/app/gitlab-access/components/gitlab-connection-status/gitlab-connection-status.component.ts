@@ -63,11 +63,6 @@ export class GitlabConnectionStatusComponent implements OnInit, AfterViewInit, O
     this.gitlabAccessesSubscription?.unsubscribe();
   }
 
-
-  openSite(host: string) {
-    window.open(host, '_blank');
-  }
-
   ngAfterViewInit(): void {
     this.testConnection(this.config).subscribe(success => {
       if (!success) {

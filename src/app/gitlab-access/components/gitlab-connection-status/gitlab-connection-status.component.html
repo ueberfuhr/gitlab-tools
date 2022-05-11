@@ -11,14 +11,14 @@
 <mat-menu xPosition="before" #menu="matMenu">
   <button mat-menu-item (click)="openSettings()">
     <mat-icon>settings</mat-icon>
-    <span>Settings...</span>
+    Settings...
   </button>
   <button mat-menu-item (click)="testConnection(config).subscribe()">
     <mat-icon>settings_ethernet</mat-icon>
-    <span>Test Connection</span>
+    Test Connection
   </button>
-  <button mat-menu-item (click)="openSite(config.host)">
+  <a mat-menu-item [href]="config.host" target="_blank">
     <mat-icon>public</mat-icon>
-    <span>Open Gitlab Web UI</span>
-  </button>
+    Open Gitlab Web UI
+  </a>
 </mat-menu>
