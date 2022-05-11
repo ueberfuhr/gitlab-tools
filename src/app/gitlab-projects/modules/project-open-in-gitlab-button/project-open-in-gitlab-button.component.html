@@ -1,3 +1,8 @@
-<button mat-button (click)="open()" [disabled]="!project || disabled" title="Open project in Gitlab">
+<a mat-button *ngIf="project !== undefined && !disabled; else openProjectPlaceholder" [href]="project?.web_url" target="_blank" title="Open project in Gitlab">
   <mat-icon>public</mat-icon>
-</button>
+</a>
+<ng-template #openProjectPlaceholder>
+  <button mat-button disabled title="Open project in Gitlab">
+    <mat-icon>public</mat-icon>
+  </button>
+</ng-template>

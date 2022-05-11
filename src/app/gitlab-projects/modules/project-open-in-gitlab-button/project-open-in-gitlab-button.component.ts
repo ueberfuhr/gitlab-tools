@@ -11,8 +11,4 @@ export class ProjectOpenInGitlabButtonComponent {
   @Input() project?: GitlabProject;
   @Input() disabled = false;
 
-  open(): void {
-    window.open(this.project?.web_url,'_blank');
-  }
-
 }
