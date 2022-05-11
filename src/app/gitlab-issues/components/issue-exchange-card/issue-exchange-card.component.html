@@ -12,9 +12,9 @@
       </app-project-selector>
     </div>
     <div fxLayout="row" fxLayoutGap="40">
-      <div fxFlex="30%">
+      <div fxFlex="20%">
       </div>
-      <div fxFlex="70%" style="text-align: center;">
+      <div fxFlex="80%" style="text-align: center;">
         <button mat-raised-button color="primary" [disabled]="!source" (click)="importDataFromProject()">
           <mat-icon>arrow_downward</mat-icon>
           Read issues
@@ -22,17 +22,17 @@
       </div>
     </div>
     <div fxLayout="row" fxLayoutGap="40" style="margin-top: 1em;">
-      <div fxFlex="30%">
+      <div fxFlex="20%">
         <app-file-drag-drop accept="text/json" (fileDropped)="importDataFromFile($event)"></app-file-drag-drop>
       </div>
-      <div fxFlex="70%" class="exchange-model-view">
+      <div fxFlex="80%" class="exchange-model-view">
         <app-issue-exchange-model-viewer [model]="data"></app-issue-exchange-model-viewer>
       </div>
     </div>
     <div fxLayout="row" fxLayoutGap="40" style="margin-top: 1em; margin-bottom: 1em;">
-      <div fxFlex="30%">
+      <div fxFlex="20%">
       </div>
-      <div fxFlex="70%" style="text-align: center;">
+      <div fxFlex="80%" style="text-align: center;">
         <button mat-raised-button color="primary" [disabled]="!importAvailable" (click)="loadDataIntoTarget()">
           <mat-icon>arrow_downward</mat-icon>
           Import issues
