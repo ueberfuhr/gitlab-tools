@@ -9,6 +9,7 @@ import {GitlabProject} from '../../models/project.model';
 export class ProjectOpenInGitlabButtonComponent {
 
   @Input() project?: GitlabProject;
+  @Input() disabled = false;
 
   open(): void {
     window.open(this.project?.web_url,'_blank');

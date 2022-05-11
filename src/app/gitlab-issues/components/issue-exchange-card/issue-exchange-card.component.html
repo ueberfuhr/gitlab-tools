@@ -1,0 +1,49 @@
+<mat-card>
+  <mat-card-title>Import / Export</mat-card-title>
+  <mat-card-subtitle>
+    Export issues and labels from project and import them into another project.
+  </mat-card-subtitle>
+  <mat-card-content>
+    <div style="margin-top: 2em;">
+      <app-project-selector label="Select a project to export issues" (projectSelected)="onSourceSelected($event)">
+        <button mat-button color="primary" [disabled]="!source" title="Run export" (click)="downloadExportedIssues()">
+          <mat-icon>file_download</mat-icon>
+        </button>
+      </app-project-selector>
+    </div>
+    <div fxLayout="row" fxLayoutGap="40">
+      <div fxFlex="30%">
+      </div>
+      <div fxFlex="70%" style="text-align: center;">
+        <button mat-raised-button color="primary" [disabled]="!source" (click)="importDataFromProject()">
+          <mat-icon>arrow_downward</mat-icon>
+          Read issues
+        </button>
+      </div>
+    </div>
+    <div fxLayout="row" fxLayoutGap="40" style="margin-top: 1em;">
+      <div fxFlex="30%">
+        <app-file-drag-drop accept="text/json" (fileDropped)="importDataFromFile($event)"></app-file-drag-drop>
+      </div>
+      <div fxFlex="70%" class="exchange-model-view">
+        <app-issue-exchange-model-viewer [model]="data"></app-issue-exchange-model-viewer>
+      </div>
+    </div>
+    <div fxLayout="row" fxLayoutGap="40" style="margin-top: 1em; margin-bottom: 1em;">
+      <div fxFlex="30%">
+      </div>
+      <div fxFlex="70%" style="text-align: center;">
+        <button mat-raised-button color="primary" [disabled]="!importAvailable" (click)="loadDataIntoTarget()">
+          <mat-icon>arrow_downward</mat-icon>
+          Import issues
+        </button>
+      </div>
+    </div>
+    <div>
+      <app-project-selector label="Select a project to import issues" (projectSelected)="onTargetSelected($event)">
+      </app-project-selector>
+    </div>
+  </mat-card-content>
+  <mat-card-actions>
+  </mat-card-actions>
+</mat-card>
