@@ -4,7 +4,7 @@ import {GitlabLabelsService} from './gitlab-labels.service';
 import {GitlabProject} from '../../gitlab-projects/models/project.model';
 import {ExchangeIssue, ExchangeLabel, IssueExchangeModel} from '../models/exchange.model';
 import {GitlabProjectsService} from '../../gitlab-projects/services/gitlab-projects.service';
-import {catchError, combineLatest, defer, map, mergeMap, Observable, of, take, tap, throwError, toArray} from 'rxjs';
+import {catchError, combineLatest, concat, defer, map, mergeMap, Observable, of, take, tap, throwError, toArray} from 'rxjs';
 import {GitlabLabel} from '../models/gitlab-label.model';
 import {GitlabIssue} from '../models/gitlab-issue.model';
 import {ProgressDialogHandle, ProgressService} from '../../shared/progress-view/progress.service';
@@ -93,7 +93,7 @@ export class IssueImportService {
         }),
         // Observable<GitlabLabel>[]  (imported)
         // if empty, combineLatest would not bring any further results
-        mergeMap(labelImports => labelImports.length > 1 ? combineLatest(labelImports) : of([])),
+        mergeMap(labelImports => labelImports.length > 0 ? combineLatest(labelImports) : of([])),
         // GitlabLabel[] (imported)
       );
   }
@@ -101,37 +101,46 @@ export class IssueImportService {
   private importIssues(project: GitlabProject, issues: ExchangeIssue[], progress: {
     handle: ProgressDialogHandle,
     createProgressCalculator(total: number): ProgressCalculator
-  }): Observable<GitlabIssue[]> {
-    issues.sort((a, b) => a.iid - b.iid);
-    return of(issues)
-      .pipe(
-        // ExchangeIssue[]
-        map(issuesToImport => {
-          const progressCalculator = progress.createProgressCalculator(issuesToImport.length);
-          return issuesToImport.map(issue => this.issuesService.create(project.id, {
-              iid: issue.iid,
-              title: issue.title,
-              issue_type: issue.issue_type,
-              labels: issue.labels,
-              description: issue.description,
-              state: issue.state
-            })
-              .pipe(
-                tap(() => progress.handle
-                  .submit({
-                    progress: progressCalculator.done(),
-                    description: `Imported ${progressCalculator.countOfDone()} of ${issuesToImport.length} issue(s)`
-                  }))
-              )
+  }, obtainOrder: boolean): Observable<GitlabIssue[]> {
+    if (issues.length < 1) {
+      return of([])
+    } else {
+      issues.sort((a, b) => a.iid - b.iid);
+      return of(issues)
+        .pipe(
+          // ExchangeIssue[]
+          map(issuesToImport => {
+            const progressCalculator = progress.createProgressCalculator(issuesToImport.length);
+            return issuesToImport.map(issue => this.issuesService.create(project.id, {
+                iid: issue.iid,
+                title: issue.title,
+                issue_type: issue.issue_type,
+                labels: issue.labels,
+                description: issue.description,
+                state: issue.state
+              })
+                .pipe(
+                  tap(() => progress.handle
+                    .submit({
+                      progress: progressCalculator.done(),
+                      description: `Imported ${progressCalculator.countOfDone()} of ${issuesToImport.length} issue(s)`
+                    }))
+                )
+            )
+          }),
+          // Observable<GitlabIssue>[]  (imported)
+          mergeMap(issueImports =>
+            obtainOrder ?
+              // we need them in sequence to get the right order!
+              concat(...issueImports).pipe(toArray()) :
+              combineLatest(issueImports)
           )
-        }),
-        // Observable<GitlabIssue>[]  (imported)
-        mergeMap(issueImports => issueImports.length > 1 ? combineLatest(issueImports) : of([]))
-        // GitlabIssue[] (imported)
-      );
+          // GitlabIssue[] (imported)
+        );
+    }
   }
 
-  import(project: GitlabProject, data: IssueExchangeModel): Observable<ImportResult> {
+  import(project: GitlabProject, data: IssueExchangeModel, obtainOrder = true): Observable<ImportResult> {
     const total = data.labels.length + data.issues.length;
     if (total === 0) {
       return of({
@@ -161,8 +170,12 @@ export class IssueImportService {
           ),
           tap(labelsWithHandle => labelsWithHandle.handle.submit({progress: progressAfterLabels, description: 'Importing Issues...'})),
           mergeMap(labelsWithHandle => this
-            .importIssues(project, data.issues, {handle: labelsWithHandle.handle, createProgressCalculator: calculateProgressForIssues})
-            .pipe(
+            .importIssues(
+              project,
+              data.issues,
+              {handle: labelsWithHandle.handle, createProgressCalculator: calculateProgressForIssues},
+              obtainOrder
+            ).pipe(
               catchError(err => {
                 labelsWithHandle.handle.finish();
                 return throwError(() => err);

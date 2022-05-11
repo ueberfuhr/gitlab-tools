@@ -37,6 +37,15 @@
           <mat-icon>arrow_downward</mat-icon>
           Import issues
         </button>
+        <button mat-icon-button color="primary" [disabled]="!importAvailable" [matMenuTriggerFor]="menuImportOptions">
+          <mat-icon style="height: auto;">more_vert</mat-icon>
+        </button>
+        <mat-menu xPosition="before" #menuImportOptions="matMenu">
+          <button mat-menu-item (click)="loadDataIntoTarget(false)">
+            <mat-icon>bolt</mat-icon>
+            <span>Import unordered, but faster</span>
+          </button>
+        </mat-menu>
       </div>
     </div>
     <div>

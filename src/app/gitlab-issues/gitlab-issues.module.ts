@@ -18,8 +18,8 @@ import {MatDividerModule} from '@angular/material/divider';
 import {LabelComponent} from './components/label/label.component';
 import {MatBadgeModule} from '@angular/material/badge';
 import {MatListModule} from '@angular/material/list';
-import {ProgressViewModule} from '../shared/progress-view/progress-view.module';
 import {IssueExchangeCardComponent} from './components/issue-exchange-card/issue-exchange-card.component';
+import {MatMenuModule} from '@angular/material/menu';
 
 @NgModule({
   declarations: [
@@ -45,7 +45,7 @@ import {IssueExchangeCardComponent} from './components/issue-exchange-card/issue
     MatDividerModule,
     MatBadgeModule,
     MatListModule,
-    ProgressViewModule
+    MatMenuModule
   ]
 })
 export class GitlabIssuesModule {

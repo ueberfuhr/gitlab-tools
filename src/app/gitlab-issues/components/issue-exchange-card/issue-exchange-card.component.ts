@@ -50,10 +50,10 @@ export class IssueExchangeCardComponent {
     return this.target !== undefined && this.data !== undefined && this.data.issues.length>0;
   }
 
-  loadDataIntoTarget(): void {
+  loadDataIntoTarget(obtainOrderOnImport = true): void {
     if (this.importAvailable) {
       this.importService
-        .import(this.target!, this.data!)
+        .import(this.target!, this.data!, obtainOrderOnImport)
         .subscribe(result => this.snackBar.open(`Successfully imported ${result.issues.length} issue(s) and ${result.labels.length} label(s)`));
     }
   }
