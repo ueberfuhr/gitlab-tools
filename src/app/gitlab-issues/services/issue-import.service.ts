@@ -4,10 +4,11 @@ import {GitlabLabelsService} from './gitlab-labels.service';
 import {GitlabProject} from '../../gitlab-projects/models/project.model';
 import {ExchangeIssue, ExchangeLabel, IssueExchangeModel} from '../models/exchange.model';
 import {GitlabProjectsService} from '../../gitlab-projects/services/gitlab-projects.service';
-import {catchError, combineLatest, concat, defer, map, mergeMap, Observable, of, take, tap, throwError, toArray} from 'rxjs';
+import {combineLatest, concat, defer, map, mergeMap, Observable, of, OperatorFunction, take, tap, toArray} from 'rxjs';
 import {GitlabLabel} from '../models/gitlab-label.model';
 import {GitlabIssue} from '../models/gitlab-issue.model';
 import {ProgressDialogHandle, ProgressService} from '../../shared/progress-view/progress.service';
+import {finishProgress, finishProgressOnError, ProgressHandler} from '../../shared/progress-view/progress.utilities';
 
 /**
  * The result of the import.
@@ -23,32 +24,6 @@ export interface ImportResult {
   issues: GitlabIssue[]
 }
 
-interface ProgressCalculator {
-  done(): number;
-
-  countOfDone(): number;
-}
-
-class ProgressCalculatorImpl implements ProgressCalculator {
-
-  private count = 0;
-
-  constructor(private readonly total: number,
-              private readonly factor: number,
-              private readonly offset: number) {
-  }
-
-  countOfDone(): number {
-    return this.count;
-  }
-
-  done(): number {
-    this.count++;
-    return this.offset + 100 * this.count * this.factor / this.total;
-  }
-
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -60,133 +35,222 @@ export class IssueImportService {
               private readonly progressService: ProgressService) {
   }
 
-  private importLabels(project: GitlabProject, labels: ExchangeLabel[], progress: {
+  private importLabelsWithLabelsImporter(project: GitlabProject, data: IssueExchangeModel, progressOptions: {
     handle: ProgressDialogHandle,
-    createProgressCalculator(total: number): ProgressCalculator
+    minProgress: number,
+    maxProgress: number
   }): Observable<GitlabLabel[]> {
-    return this.labelsService.getLabelsForProject(project.id)
+    const importer = new LabelsImporter(
+      data.labels,
+      project,
+      this.labelsService,
+      total => new ProgressHandler(
+        total,
+        (progressOptions.maxProgress - progressOptions.minProgress) / total,
+        progressOptions.minProgress,
+        progressOptions.handle,
+        (_progress, index) => `Imported ${index} of ${total} label(s)`
+      )
+    );
+    return importer.import()
       .pipe(
-        // GitlabLabel
-        map(set => set.payload.name),
-        // GitlabLabel-Name
-        toArray(),
-        // GitlabLabel-Name[]
-        // import labels that do not yet exist
-        map(labelNames => labels.filter(label => labelNames.indexOf(label.name) < 0)),
-        // ExchangeLabel[]
-        map(labelsToImport => {
-          const progressCalculator = progress.createProgressCalculator(labelsToImport.length);
-          return labelsToImport.map(label => this.labelsService.create(project, {
-              name: label.name,
-              description: label.description,
-              color: label.color,
-              is_project_label: label.is_project_label,
-            })
-              .pipe(
-                tap(() => progress.handle
-                  .submit({
-                    progress: progressCalculator.done(),
-                    description: `Imported ${progressCalculator.countOfDone() + 1} of ${labelsToImport.length} label(s)`
-                  }))
-              )
-          );
-        }),
-        // Observable<GitlabLabel>[]  (imported)
-        // if empty, combineLatest would not bring any further results
-        mergeMap(labelImports => labelImports.length > 0 ? combineLatest(labelImports) : of([])),
-        // GitlabLabel[] (imported)
+        finishProgressOnError(progressOptions.handle)
       );
   }
 
-  private importIssues(project: GitlabProject, issues: ExchangeIssue[], progress: {
+  private importIssuesWithIssuesImporter(project: GitlabProject, data: IssueExchangeModel, progressOptions: {
     handle: ProgressDialogHandle,
-    createProgressCalculator(total: number): ProgressCalculator
-  }, obtainOrder: boolean): Observable<GitlabIssue[]> {
-    if (issues.length < 1) {
-      return of([])
-    } else {
-      issues.sort((a, b) => a.iid - b.iid);
-      return of(issues)
-        .pipe(
-          // ExchangeIssue[]
-          map(issuesToImport => {
-            const progressCalculator = progress.createProgressCalculator(issuesToImport.length);
-            return issuesToImport.map(issue => this.issuesService.create(project.id, {
-                iid: issue.iid,
-                title: issue.title,
-                issue_type: issue.issue_type,
-                labels: issue.labels,
-                description: issue.description,
-                state: issue.state
-              })
-                .pipe(
-                  tap(() => progress.handle
-                    .submit({
-                      progress: progressCalculator.done(),
-                      description: `Imported ${progressCalculator.countOfDone()} of ${issuesToImport.length} issue(s)`
-                    }))
-                )
-            )
-          }),
-          // Observable<GitlabIssue>[]  (imported)
-          mergeMap(issueImports =>
-            obtainOrder ?
-              // we need them in sequence to get the right order!
-              concat(...issueImports).pipe(toArray()) :
-              combineLatest(issueImports)
-          )
-          // GitlabIssue[] (imported)
-        );
-    }
+    minProgress: number,
+    maxProgress: number
+  }, obtainOrder = true): Observable<GitlabIssue[]> {
+    const importer = new IssuesImporter(
+      data.issues,
+      project,
+      this.issuesService,
+      total => new ProgressHandler(
+        total,
+        (progressOptions.maxProgress - progressOptions.minProgress) / total,
+        progressOptions.minProgress,
+        progressOptions.handle,
+        (_progress, index) => `Imported ${index} of ${total} issues(s)`
+      )
+    );
+    return importer.import(obtainOrder)
+      .pipe(
+        finishProgressOnError(progressOptions.handle)
+      );
   }
 
   import(project: GitlabProject, data: IssueExchangeModel, obtainOrder = true): Observable<ImportResult> {
     const total = data.labels.length + data.issues.length;
     if (total === 0) {
-      return of({
-        issues: [],
-        labels: [],
-      })
+      return of({issues: [], labels: [],});
     } else {
-      const calculateProgressForLabels = (totalLabels: number) => new ProgressCalculatorImpl(totalLabels, data.labels.length / total, 0);
-      const progressAfterLabels = 100 * data.labels.length / total;
-      const calculateProgressForIssues = (totalIssues: number) => new ProgressCalculatorImpl(totalIssues, data.issues.length / total, progressAfterLabels);
-      // we need to execute them in order
-      return defer(() => of(this.progressService.start({
-        title: 'Importing...',
-        mode: 'determinate'
-      })))
+      const progressAfterLabels = data.labels.length / total;
+      return defer(
+        () => of(this.progressService.start({title: 'Importing...', mode: 'determinate'}))
+      )
         .pipe(
-          tap(handle => handle.submit({progress: 0, description: 'Importing Labels...'})),
-          mergeMap(handle => this
-            .importLabels(project, data.labels, {handle, createProgressCalculator: calculateProgressForLabels})
-            .pipe(
-              map(labels => ({labels, handle})),
-              catchError(err => {
-                handle.finish();
-                return throwError(() => err);
-              })
-            )
-          ),
-          tap(labelsWithHandle => labelsWithHandle.handle.submit({progress: progressAfterLabels, description: 'Importing Issues...'})),
-          mergeMap(labelsWithHandle => this
-            .importIssues(
-              project,
-              data.issues,
-              {handle: labelsWithHandle.handle, createProgressCalculator: calculateProgressForIssues},
-              obtainOrder
-            ).pipe(
-              catchError(err => {
-                labelsWithHandle.handle.finish();
-                return throwError(() => err);
-              }),
-              take(1), // just to be sure
-              map(issues => ({issues, labels: labelsWithHandle.labels} as ImportResult)),
-            )
+          mergeMap(handle => this.importLabelsWithLabelsImporter(project, data, {
+              handle,
+              minProgress: 0,
+              maxProgress: progressAfterLabels
+            })
+              .pipe(
+                take(1), // just to be sure
+                mergeMap(labels => this.importIssuesWithIssuesImporter(project, data, {
+                    handle,
+                    minProgress: progressAfterLabels,
+                    maxProgress: 1
+                  }, obtainOrder)
+                    .pipe(
+                      take(1), // just to be sure
+                      map(issues => ({issues, labels} as ImportResult))
+                    )
+                ),
+                finishProgress(handle)
+              )
           )
-        )
+        );
     }
   }
 
+}
+
+/* *************************************
+ *   I N T E R N A L   C L A S S E S   *
+ * ----------------------------------- *
+ * Internal classes that encapsulate   *
+ * the import context data and provide *
+ * a readable kind of code.            *
+ ************************************* */
+
+/**
+ * Imports the labels that do not yet exist.
+ */
+class LabelsImporter {
+
+  /**
+   * Constructor.
+   * @param labels the array of labels that have to be imported
+   * @param project the project where to import into
+   * @param labelsService the labels service to access Gitlab
+   * @param createProgressHandler a function to create a progress handler for the current progress
+   */
+  constructor(private readonly labels: ExchangeLabel[],
+              private readonly project: GitlabProject,
+              private readonly labelsService: GitlabLabelsService,
+              private readonly createProgressHandler: (total: number) => ProgressHandler) {
+  }
+
+  private getExistingLabelNames(): Observable<string[]> {
+    return this.labelsService.getLabelsForProject(this.project.id)
+      .pipe(
+        // DataSet<GitlabLabel>
+        map(dataSet => dataSet.payload.name),
+        // GitlabLabel-Name
+        toArray()
+      );
+  }
+
+  private findNewLabels(): OperatorFunction<string[], ExchangeLabel[]> {
+    return map<string[], ExchangeLabel[]>(existingLabelNames => this.labels.filter(label => existingLabelNames.indexOf(label.name) < 0));
+  }
+
+  private createImportOperationForLabel(label: ExchangeLabel, progressHandler: ProgressHandler) {
+    return this.labelsService.create(this.project, {
+      name: label.name,
+      description: label.description,
+      color: label.color,
+      is_project_label: label.is_project_label,
+    })
+      .pipe(
+        // display progress
+        tap(() => progressHandler.done())
+      )
+  }
+
+  /**
+   * Execute the import.
+   * @return the imported labels (that did not yet exist before the import)
+   */
+  import(): Observable<GitlabLabel[]> {
+    return this.getExistingLabelNames()
+      .pipe(
+        // import labels that do not yet exist
+        this.findNewLabels(),
+        // ExchangeLabel[]
+        mergeMap(newLabels => {
+          if (newLabels.length > 0) {
+            const progressHandler = this.createProgressHandler(newLabels.length);
+            const importOperations = newLabels.map(label => this.createImportOperationForLabel(label, progressHandler));
+            return combineLatest(importOperations);
+          } else {
+            return of([]);
+          }
+        })
+      );
+  }
+
+}
+
+/**
+ * Imports the issues.
+ */
+class IssuesImporter {
+
+  /**
+   * Constructor.
+   * @param issues the array of issues that have to be imported
+   * @param project the project where to import into
+   * @param issuesService the issues service to access Gitlab
+   * @param createProgressHandler a function to create a progress handler for the current progress
+   */
+  constructor(private readonly issues: ExchangeIssue[],
+              private readonly project: GitlabProject,
+              private readonly issuesService: GitlabIssuesService,
+              private readonly createProgressHandler: (total: number) => ProgressHandler) {
+  }
+
+  private sortIssuesByIID(): void {
+    this.issues.sort((a, b) => a.iid - b.iid);
+  }
+
+  private createImportOperationForIssue(issue: ExchangeIssue, progressHandler: ProgressHandler) {
+    return this.issuesService.create(this.project.id, {
+      iid: issue.iid,
+      title: issue.title,
+      issue_type: issue.issue_type,
+      labels: issue.labels,
+      description: issue.description,
+      state: issue.state
+    })
+      .pipe(
+        // display progress
+        tap(() => progressHandler.done())
+      )
+  }
+
+  import(obtainOrder = true): Observable<GitlabIssue[]> {
+    if (this.issues.length < 1) {
+      return of([])
+    } else {
+      if (obtainOrder) {
+        this.sortIssuesByIID();
+      }
+      return of(this.issues)
+        .pipe(
+          // ExchangeIssue[]
+          mergeMap(newIssues => {
+            const progressHandler = this.createProgressHandler(newIssues.length);
+            const importOperations = newIssues.map(issue => this.createImportOperationForIssue(issue, progressHandler));
+            return obtainOrder ?
+              // we need them in sequence to get the right order!
+              concat(...importOperations).pipe(toArray()) :
+              combineLatest(importOperations);
+          })
+        );
+    }
+  }
 
 }
