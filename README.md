@@ -1,4 +1,5 @@
 # Gitlab-Tools
+[![CI Build](https://github.com/ueberfuhr/gitlab-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/ueberfuhr/gitlab-tools/actions/workflows/ci.yml)
 
 Ein Projekt mit Beispiel-Skripten für die automatisierte Verwendung von GitLab mithilfe der [REST API](https://docs.gitlab.com/ee/api/).
 
