@@ -154,7 +154,10 @@ class LabelsImporter {
   }
 
   private findNewLabels(): OperatorFunction<string[], ExchangeLabel[]> {
-    return map<string[], ExchangeLabel[]>(existingLabelNames => this.labels.filter(label => existingLabelNames.indexOf(label.name) < 0));
+    return map<string[], ExchangeLabel[]>(
+      existingLabelNames => this.labels
+        .filter(label => existingLabelNames.indexOf(label.name) < 0)
+    );
   }
 
   private createImportOperationForLabel(label: ExchangeLabel, progressHandler: ProgressHandler) {

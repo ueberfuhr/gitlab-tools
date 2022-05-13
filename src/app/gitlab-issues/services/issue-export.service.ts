@@ -1,11 +1,11 @@
 import {Injectable} from '@angular/core';
 import {GitlabIssuesService} from './gitlab-issues.service';
 import {GitlabLabelsService} from './gitlab-labels.service';
-import {catchError, defer, forkJoin, map, mergeMap, Observable, of, tap, throwError, toArray} from 'rxjs';
+import {forkJoin, map, mergeMap, Observable, tap, toArray} from 'rxjs';
 import {ExchangeIssue, ExchangeLabel, IssueExchangeModel} from '../models/exchange.model';
-import {GitlabIssue} from '../models/gitlab-issue.model';
-import {GitlabLabel} from '../models/gitlab-label.model';
 import {ProgressService} from '../../shared/progress-view/progress.service';
+import {IssueExportModelMapperService} from './issue-export-model-mapper.service';
+import {finishProgress, finishProgressOnError} from '../../shared/progress-view/progress.utilities';
 
 @Injectable({
   providedIn: 'root'
@@ -14,27 +14,29 @@ export class IssueExportService {
 
   constructor(private readonly issues: GitlabIssuesService,
               private readonly labels: GitlabLabelsService,
+              private readonly mapper: IssueExportModelMapperService,
               private readonly progressService: ProgressService) {
   }
 
-  private static reduceIssue(issue: GitlabIssue): ExchangeIssue {
-    return {
-      iid: issue.iid,
-      title: issue.title,
-      description: issue.description,
-      state: issue.state,
-      labels: issue.labels,
-      issue_type: issue.issue_type
-    }
+  private getIssues(projectId: number): Observable<ExchangeIssue[]> {
+    return this.issues.getIssues(projectId)
+      .pipe(
+        map(set => set.payload),
+        map(this.mapper.mapIssue),
+        toArray(),
+        tap(issues => {
+          issues.sort((a, b) => a.iid - b.iid);
+        })
+      );
   }
 
-  private static reduceLabel(label: GitlabLabel): ExchangeLabel {
-    return {
-      name: label.name,
-      description: label.description,
-      color: label.color,
-      is_project_label: label.is_project_label
-    }
+  private getLabels(projectId: number): Observable<ExchangeLabel[]> {
+    return this.labels.getLabelsForProject(projectId)
+      .pipe(
+        map(set => set.payload),
+        map(this.mapper.mapLabel),
+        toArray()
+      );
   }
 
   /**
@@ -42,42 +44,39 @@ export class IssueExportService {
    * @param projectId the id of the project
    */
   export(projectId: number): Observable<IssueExchangeModel> {
-    // only invoke when subscription
-    const handle$ = defer(() => of(this.progressService.start({
+    return this.progressService.startAsObservable({
       title: 'Exporting...',
-      mode: 'indeterminate'
-    })).pipe(tap(handle => handle.submit({progress: 0, description: 'Exporting issues and labels'}))));
-    const issues$ = this.issues.getIssues(projectId)
+      mode: 'indeterminate',
+      initialProgress: {progress: 0, description: 'Exporting issues and labels'}
+    })
       .pipe(
-        map(set => set.payload),
-        toArray()
+        mergeMap(handle => this.exportWithProgressDialog(projectId)
+          .pipe(
+            finishProgressOnError(handle),
+            finishProgress(handle)
+          ))
       );
-    const labels$ = this.labels.getLabelsForProject(projectId)
+  }
+
+  private onlyLabelsUsedInIssues(labels: ExchangeLabel[], issues: ExchangeIssue[]): ExchangeLabel[] {
+    const usedLabels = new Set(
+      issues
+        .map(i => i.labels)
+        .reduce((a, value) => a.concat(value), [])
+    );
+    return labels
+      .filter(label => usedLabels.has(label.name));
+
+  }
+
+  private exportWithProgressDialog(projectId: number): Observable<IssueExchangeModel> {
+    return forkJoin([this.getIssues(projectId), this.getLabels(projectId)])
       .pipe(
-        map(set => set.payload),
-        toArray()
-      );
-    return handle$
-      .pipe(
-        mergeMap(handle => forkJoin([issues$, labels$, of(handle)])
-          .pipe(catchError(err => {
-            handle.finish();
-            return throwError(() => err);
-          }))),
-        // create IssueExport
-        map(([issuesValue, labelsValue, handle]) => {
-          const issues = issuesValue
-            .map(IssueExportService.reduceIssue)
-            .sort((a, b) => a.iid - b.iid);
-          // delete labels not in issues
-          const usedLabels = new Set(issues.map(i => i.labels).reduce((a, value) => a.concat(value), []));
-          const labels = labelsValue
-            .map(IssueExportService.reduceLabel)
-            .filter(label => usedLabels.has(label.name));
-          handle.finish();
+        map(([issues, allLabels]) => {
+          const labels = this.onlyLabelsUsedInIssues(allLabels, issues);
           return {issues, labels} as IssueExchangeModel;
         })
-      );
+      )
   }
 
 }

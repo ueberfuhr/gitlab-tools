@@ -1,8 +1,114 @@
 import {Inject, Injectable} from '@angular/core';
 import {GITLAB_CONFIG, GitlabConfig} from '../../../environments/gitlab-config.model';
 import {HttpClient, HttpErrorResponse, HttpResponse} from '@angular/common/http';
-import {catchError, concat, defer, EMPTY, from, map, mergeMap, Observable, Subject, tap, throwError} from 'rxjs';
+import {catchError, concat, defer, EMPTY, from, mergeMap, Observable, Subject, tap, throwError} from 'rxjs';
 
+// header names
+const TOTAL_HEADER = 'X-Total';
+const TOTAL_PAGES_HEADER = 'X-Total-Pages'
+
+@Injectable({
+  providedIn: 'root'
+})
+export class GitlabService {
+
+  private readonly errorsSubject = new Subject<GitlabAccessError>();
+  public readonly errors = this.errorsSubject.asObservable();
+  private readonly accessesSubject = new Subject<GitlabAccess>();
+  public readonly accesses = this.accessesSubject.asObservable();
+
+  constructor(@Inject(GITLAB_CONFIG) private readonly config: GitlabConfig,
+              private readonly http: HttpClient
+  ) {
+  }
+
+  /**
+   * Notifies the errors and accesses observers about the result.
+   * @param result the result
+   */
+  private notifyObservers<T>(result: Observable<T>): Observable<T> {
+    return result
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          this.errorsSubject.next({
+            status: err.status
+          });
+          return throwError(() => err);
+        }),
+        tap(() => this.accessesSubject.next({}))
+      );
+  }
+
+  /**
+   * Makes a single call to the REST API.
+   * The result must not be paginated, otherwise, we'll only get the first page.
+   * @param resource the URL of the resource
+   * @param options the options of the call
+   */
+  call<T>(resource: string, options?: CallOptions): Observable<T> {
+    return this.notifyObservers(
+      this.http.request<T>(options?.method ?? 'get',
+        `${this.config.host}/api/v4/${resource}`,
+        {
+          body: options?.body,
+          params: options?.params,
+          headers: Object.assign({'PRIVATE-TOKEN': this.config.token}, options?.headers)
+        })
+    );
+  }
+
+  /**
+   * Makes multiple calls to the REST API to fetch multiple resources.
+   * Gitlab has a pagination that this method will handle.
+   * If you do not want to read all data, use the <code>take*</code> operators for pipes.
+   * @return an observable that submits each data set separately
+   */
+  callPaginated<T>(resource: string, options?: CallOptions, pageSize = 20): Observable<DataSet<T>> {
+    return this.callPaginatedSincePage(resource, 1, pageSize, options);
+  }
+
+  // uses for recursive call
+  private callPaginatedSincePage<T>(resource: string, page: number, pageSize: number, options?: CallOptions): Observable<DataSet<T>> {
+    // deferring is important to only lazy fetch data from the server if the pipe limits the count of data
+    return defer(() => this.notifyObservers(
+      this.http.request<T[]>(options?.method ?? 'get',
+        `${this.config.host}/api/v4/${resource}`,
+        {
+          body: options?.body,
+          params: Object.assign({
+            // Gitlab pagination
+            page,
+            per_page: pageSize
+          }, options?.params),
+          headers: Object.assign({'PRIVATE-TOKEN': this.config.token}, options?.headers),
+          observe: 'response',
+        })
+    )
+      .pipe(
+        mergeMap((response: HttpResponse<T[]>) => {
+          const body = response.body ?? [];
+          // read out pagination headers
+          const totalHeader = response.headers.get(TOTAL_HEADER);
+          const total = totalHeader ? Number(totalHeader) : body.length;
+          const totalPagesHeader = response.headers.get(TOTAL_PAGES_HEADER);
+          const totalPages = totalPagesHeader ? Number(totalPagesHeader) : page;
+          // create Observables
+          const itemsOfThisRequest$ = from(
+            body.map(payload => ({payload, total} as DataSet<T>))
+          );
+          const itemsOfNextPage$ = page === totalPages ?
+            EMPTY :
+            this.callPaginatedSincePage<T>(resource, page + 1, pageSize, options);
+          return concat(itemsOfThisRequest$, itemsOfNextPage$);
+        }),
+      ));
+  }
+
+}
+
+/**
+ * Options for a request to Gitlab.
+ */
 export interface CallOptions {
   /**
    * A body to include
@@ -45,110 +151,17 @@ export interface DataSet<T> {
 
 }
 
-// header names
-const TOTAL_HEADER = 'X-Total';
-const TOTAL_PAGES_HEADER = 'X-Total-Pages'
-
+/**
+ * A single successful Gitlab access result.
+ */
 export interface GitlabAccess {
 
 }
+
+/**
+ * A single faulty Gitlab access result.
+ */
 export interface GitlabAccessError {
   status: number;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
-export class GitlabService {
-
-  private readonly errorsSubject = new Subject<GitlabAccessError>();
-  public readonly errors = this.errorsSubject.asObservable();
-  private readonly accessesSubject = new Subject<GitlabAccess>();
-  public readonly accesses = this.accessesSubject.asObservable();
-
-  constructor(
-    @Inject(GITLAB_CONFIG) private readonly config: GitlabConfig,
-    private readonly http: HttpClient
-  ) {
-  }
-
-  /**
-   * Makes a single call to the REST API.
-   * @param resource the URL of the resource
-   * @param options the options of the call
-   */
-  public call<T>(resource: string, options?: CallOptions): Observable<T> {
-    return this.http.request<T>(options?.method ?? 'get',
-      `${this.config.host}/api/v4/${resource}`,
-      {
-        body: options?.body,
-        params: options?.params,
-        headers: Object.assign({'PRIVATE-TOKEN': this.config.token}, options?.headers)
-      })
-      .pipe(
-        catchError((err: HttpErrorResponse) => {
-          this.errorsSubject.next({
-            status: err.status
-          });
-          return throwError(() => err);
-        }),
-        tap(() => this.accessesSubject.next({}))
-      );
-  }
-
-  /**
-   * Makes multiple calls to the REST API to fetch multiple resources.
-   * Gitlab has a pagination that this method will handle.
-   * If you do not want to read all data, use the <code>take*</code> operators for pipes.
-   * @return an observable that submits each data set separately
-   */
-  callPaginated<T>(resource: string, options?: CallOptions, pageSize = 20): Observable<DataSet<T>> {
-    return this.callPaginatedSincePage(resource, 1, pageSize, options);
-  }
-
-  // uses for recursive call
-  private callPaginatedSincePage<T>(resource: string, page: number, pageSize: number, options?: CallOptions): Observable<DataSet<T>> {
-    // deferring is important to only lazy fetch data from the server if the pipe limits the count of data
-    return defer(() => this.http.request<T[]>(options?.method ?? 'get',
-      `${this.config.host}/api/v4/${resource}`,
-      {
-        body: options?.body,
-        params: Object.assign({
-          // Gitlab pagination
-          page,
-          per_page: pageSize
-        }, options?.params),
-        headers: Object.assign({'PRIVATE-TOKEN': this.config.token}, options?.headers),
-        observe: 'response',
-      })
-      .pipe(
-        catchError(err => {
-          this.errorsSubject.next({
-            status: err.status
-          });
-          return throwError(() => err);
-        }),
-        tap(() => this.accessesSubject.next({})),
-        map((response: HttpResponse<T[]>) => {
-          const data = response.body ?? [];
-          // read out pagination headers
-          const totalHeader = response.headers.get(TOTAL_HEADER);
-          const total = totalHeader ? Number(totalHeader) : data.length;
-          const totalPagesHeader = response.headers.get(TOTAL_PAGES_HEADER);
-          const totalPages = totalPagesHeader ? Number(totalPagesHeader) : page;
-          // transform to mergable object
-          return {
-            items: data.map(payload => ({payload, total} as DataSet<T>)),
-            isLast: page === totalPages
-          };
-        }),
-        // merge items by invoking the call to the next page (deferred)
-        mergeMap(data => {
-          const items$ = from(data.items);
-          const next$ = data.isLast ? EMPTY : this.callPaginatedSincePage<T>(resource, page + 1, pageSize, options);
-          return concat(items$, next$);
-        })
-      ));
-  }
-
-}

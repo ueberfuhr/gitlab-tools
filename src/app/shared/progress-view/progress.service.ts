@@ -1,40 +1,7 @@
 import {Injectable} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {ProgressViewDialogComponent, ProgressViewDialogInput} from './progress-view-dialog.component';
-import {BehaviorSubject} from 'rxjs';
-
-/**
- * A single progress status.
- */
-export interface ProgressStatus {
-  /**
-   * A value between 0 and 100. When reaching 100, the dialog is closed.
-   * @see QUIT_STATUS
-   */
-  progress: number,
-  description?: string
-}
-
-/**
- * You can send this status to indicate that the progress is finished.
- */
-export const QUIT_STATUS: ProgressStatus = {progress: 100};
-
-/**
- * A handle for the dialog.
- */
-export interface ProgressDialogHandle {
-  /**
-   * Submit a new status to the dialog.
-   * @param status the status
-   */
-  submit(status: ProgressStatus): void;
-
-  /**
-   * Submit the final status.
-   */
-  finish(): void;
-}
+import {BehaviorSubject, defer, of, tap} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -79,4 +46,54 @@ export class ProgressService {
     }
   }
 
+  startAsObservable(options?: {
+    title?: string,
+    mode?: 'determinate' | 'indeterminate'
+    initialProgress?: ProgressStatus
+  }) {
+    return defer(() => of(this.start({
+        title: options?.title,
+        mode: options?.mode
+      })).pipe(
+        tap(handle => {
+          if (options?.initialProgress) {
+            handle.submit(options.initialProgress)
+          }
+        }))
+    );
+  }
+
+}
+
+/**
+ * A single progress status.
+ */
+export interface ProgressStatus {
+  /**
+   * A value between 0 and 100. When reaching 100, the dialog is closed.
+   * @see QUIT_STATUS
+   */
+  progress: number,
+  description?: string
+}
+
+/**
+ * You can send this status to indicate that the progress is finished.
+ */
+export const QUIT_STATUS: ProgressStatus = {progress: 100};
+
+/**
+ * A handle for the dialog.
+ */
+export interface ProgressDialogHandle {
+  /**
+   * Submit a new status to the dialog.
+   * @param status the status
+   */
+  submit(status: ProgressStatus): void;
+
+  /**
+   * Submit the final status.
+   */
+  finish(): void;
 }
