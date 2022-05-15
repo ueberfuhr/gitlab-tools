@@ -32,47 +32,69 @@ describe('GitlabService', () => {
     http = spectator.controller;
   });
 
-  it('should make simple request correctly', done => {
-    const responseBody = {test: 'test'};
-    gitlab.call('test', {
-      body: 'body',
-      params: {
-        param1: 'pValue1'
-      },
-      headers: {
-        header1: 'hValue1'
-      },
-      method: 'delete'
-    }).subscribe(response => {
-      expect(response).toMatchObject(responseBody);
-      done();
+  describe('making a simple request', () => {
+
+    it('should not fetch until subscription', () => {
+      gitlab.call('test');
+      http.verify();
     });
-    const req = http.expectOne('host/api/v4/test?param1=pValue1', HttpMethod.DELETE)
-    const request = req.request;
-    expect(request.body).toBe('body');
-    expect(request.headers.get('header1')).toBe('hValue1');
-    expect(request.headers.get('PRIVATE-TOKEN')).toBe('token');
-    req.flush(responseBody);
-  });
 
-  it('should notify observers when simple request is successful', done => {
-    gitlab.accesses.subscribe(done);
-    gitlab.call('test').subscribe();
-  });
-
-  it('should notify observers on simple request error', done => {
-    gitlab.errors.subscribe(err => {
-      expect(err.status).toBe(500);
-      done();
+    it('should use GET as default method', () => {
+      gitlab.call('test').subscribe();
+      http.expectOne(req => req.method === HttpMethod.GET);
+      http.verify();
     });
-    gitlab.call('test').subscribe();
-    http.expectOne(() => true).flush(null, {
-      status: 500,
-      statusText: 'internal server error'
-    })
+
+    it('should set options correctly', done => {
+      const responseBody = {test: 'test'};
+      gitlab.call('test', {
+        body: 'body',
+        params: {
+          param1: 'pValue1'
+        },
+        headers: {
+          header1: 'hValue1'
+        },
+        method: 'delete'
+      }).subscribe(response => {
+        expect(response).toMatchObject(responseBody);
+        done();
+      });
+      const req = http.expectOne('host/api/v4/test?param1=pValue1', HttpMethod.DELETE)
+      const request = req.request;
+      expect(request.body).toBe('body');
+      expect(request.headers.get('header1')).toBe('hValue1');
+      expect(request.headers.get('PRIVATE-TOKEN')).toBe('token');
+      req.flush(responseBody);
+    });
+
+    it('should notify observers', done => {
+      gitlab.accesses.subscribe(() => done());
+      gitlab.call('test').subscribe();
+      http.expectOne(() => true).flush(null);
+      http.verify();
+    });
+
+    it('should notify observers on error', done => {
+      gitlab.errors.subscribe(err => {
+        expect(err.status).toBe(500);
+        done();
+      });
+      gitlab.call('test').subscribe();
+      http.expectOne(() => true).flush(null, {
+        status: 500,
+        statusText: 'internal server error'
+      });
+      http.verify();
+    });
+
   });
 
-  // paginated
+  describe('making paginated requests', () => {
+
+    // paginated - lazy, observables, ...
+
+  });
 
 
 });
