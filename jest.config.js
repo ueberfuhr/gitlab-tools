@@ -7,7 +7,7 @@ module.exports = {
   testMatch: ['**/+(*.)+(spec).+(ts)'],
   setupFilesAfterEnv: ['<rootDir>/src/test.ts'],
   collectCoverage: true,
-  coverageReporters: 'json',
+  coverageReporters: ['json'],
   coverageDirectory: '.coverage',
   coverageThreshold: {
     global: {
