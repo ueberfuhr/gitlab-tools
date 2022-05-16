@@ -21,6 +21,6 @@ describe('GitlabProjectsService', () => {
     service = spectator.service;
   });
 
-
+  it('should work', () => {});
 
 });
