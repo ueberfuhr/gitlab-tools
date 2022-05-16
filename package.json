@@ -6,7 +6,7 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "npx jest",
+    "test": "npx jest --json --testLocationInResults --outputFile=report.json",
     "create-env": "echo {\"host\":\"https://url-to-gitlab\",\"token\":\"your-access-token\"} > src/environments/gitlab-config.json"
   },
   "private": true,
