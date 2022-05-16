@@ -19,12 +19,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+    - uses: actions/setup-node@v3
       with:
         node-version: 16
         cache: 'npm'
-    - run: npm ci
+    - name: Build Application
+      run: npm ci
     - name: Run Tests (on push)
       run: npm test
       if: github.event_name != 'pull_request'
