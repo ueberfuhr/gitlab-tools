@@ -11,28 +11,31 @@ on:
 
 jobs:
   build:
-    permissions:
-      checks: write
-      pull-requests: write
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
       with:
         node-version: 16
         cache: 'npm'
-    - name: Build Application
-      run: npm ci
-    - name: Run Tests
-      run: npm test
-    - name: Report Code Coverage for Pull Request
-      uses: ArtiomTr/jest-coverage-report-action@v2.0.5
-      with:
-        skip-step: all
-        test-script: npm test
-        coverage-file: ./.coverage/report.json
-        base-coverage-file: ./.coverage/report.json
-      if: github.event_name == 'pull_request'
+    - run: npm ci
     - run: npm run build --if-present
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test
+      - uses: ArtiomTr/jest-coverage-report-action@v2.0.5
+        with:
+          skip-step: all
+          coverage-file: ./.coverage/report.json
+          base-coverage-file: ./.coverage/report.json
+        if: github.event_name == 'pull_request'
