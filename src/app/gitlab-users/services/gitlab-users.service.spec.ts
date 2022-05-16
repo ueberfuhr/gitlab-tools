@@ -15,12 +15,12 @@ describe('GitlabUsersService', () => {
   // Mock
   let gitlab: SpyObject<GitlabService>;
   // Class under Test
-  let users: GitlabUsersService;
+  let service: GitlabUsersService;
 
   beforeEach(() => {
     spectator = createService();
     gitlab = spectator.inject(GitlabService);
-    users = spectator.service;
+    service = spectator.service;
   });
 
   it('should reduce to GitlabUser', done => {
@@ -30,7 +30,7 @@ describe('GitlabUsersService', () => {
       name: 'John Doe',
       another_property: 22
     }));
-    users.getCurrentUser().subscribe(user => {
+    service.getCurrentUser().subscribe(user => {
       expect(user.id).toBe(10);
       expect(user.username).toBe('john.doe');
       expect(user.name).toBe('John Doe');
@@ -42,7 +42,7 @@ describe('GitlabUsersService', () => {
   it('should not catch any error', done => {
     const errorResponse = new HttpErrorResponse({});
     gitlab.call.mockReturnValue(throwError(() => errorResponse));
-    users.getCurrentUser().subscribe({
+    service.getCurrentUser().subscribe({
       error: err => {
         expect(err).toBe(errorResponse);
         done();
