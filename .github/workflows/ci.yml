@@ -27,15 +27,15 @@ jobs:
         cache: 'npm'
     - name: Build Application
       run: npm ci
-    - name: Run Tests (on push)
+    - name: Run Tests
       run: npm test
       if: github.event_name != 'pull_request'
-    - name: Run Tests (on pull request)
+    - name: Report Code Coverage for Pull Request
       uses: ArtiomTr/jest-coverage-report-action@v2.0.5
       with:
-        # skip-step: all
+        skip-step: all
         test-script: npm test
-        # coverage-file: ./.coverage/coverage-final.json
-        # base-coverage-file: ./.coverage/coverage-final.json
+        coverage-file: ./.coverage/coverage-final.json
+        base-coverage-file: ./.coverage/coverage-final.json
       if: github.event_name == 'pull_request'
     - run: npm run build --if-present
