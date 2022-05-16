@@ -19,6 +19,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - run: git status
+    - run: git branch
     - uses: actions/setup-node@v3
       with:
         node-version: 16
