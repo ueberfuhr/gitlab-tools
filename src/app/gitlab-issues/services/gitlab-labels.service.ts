@@ -45,8 +45,7 @@ export class GitlabLabelsService {
   }
 
   private createForProject(label: GitlabLabel, projectId: number): Observable<GitlabLabel> {
-    return this.gitlab.call<GitlabLabel>(`projects/${projectId}/labels`, {
-      method: 'post',
+    return this.gitlab.call<GitlabLabel>(`projects/${projectId}/labels`, 'post', {
       params: {
         name: label.name,
         description: label.description ?? '',
@@ -59,8 +58,7 @@ export class GitlabLabelsService {
 
   private createForGroup(label: GitlabLabel, groupId: number): Observable<GitlabLabel> {
     console.log(`Create group label ${label.name} with color ${label.color}`);
-    return this.gitlab.call<GitlabLabel>(`groups/${groupId}/labels`, {
-      method: 'post',
+    return this.gitlab.call<GitlabLabel>(`groups/${groupId}/labels`, 'post', {
       headers: {
         'Content-Type': 'application/json'
       },
