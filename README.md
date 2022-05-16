@@ -36,3 +36,4 @@ Im IntelliJ erstellst Du Dir eine private Umgebungskonfiguration für den HTTP C
 ```
 
 In der Datei `http-requests/http-client.env.json` passt Du außerdem die Gitlab-URL an.
+
