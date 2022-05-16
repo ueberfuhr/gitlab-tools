@@ -37,7 +37,7 @@ export class GitlabIssuesService {
     state?: GitlabIssueState
   }): Observable<DataSet<GitlabIssue>> {
     let params = {};
-    if(options?.state) {
+    if (options?.state) {
       params = Object.assign(params, {state: options.state});
     }
     return this.gitlab.callPaginated<GitlabIssue>(`projects/${projectId}/issues`, {
@@ -46,8 +46,7 @@ export class GitlabIssuesService {
   }
 
   create(projectId: number, issue: GitlabIssue): Observable<GitlabIssue> {
-    return this.gitlab.call<GitlabIssue>(`projects/${projectId}/issues`, {
-      method: 'post',
+    return this.gitlab.call<GitlabIssue>(`projects/${projectId}/issues`, 'post', {
       params: {
         title: issue.title,
         description: issue.description,
