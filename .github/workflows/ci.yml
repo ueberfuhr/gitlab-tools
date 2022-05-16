@@ -29,7 +29,6 @@ jobs:
       run: npm ci
     - name: Run Tests
       run: npm test
-      if: github.event_name != 'pull_request'
     - name: Report Code Coverage for Pull Request
       uses: ArtiomTr/jest-coverage-report-action@v2.0.5
       with:
