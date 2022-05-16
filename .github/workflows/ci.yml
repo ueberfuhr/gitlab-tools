@@ -36,5 +36,6 @@ jobs:
         test-script: npm test
         coverage-file: ./.coverage/report.json
         base-coverage-file: ./.coverage/report.json
+        github-token: ${{ secrets.SECRET_TOKEN }}
       if: github.event_name == 'pull_request'
     - run: npm run build --if-present
