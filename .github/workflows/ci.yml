@@ -17,21 +17,18 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [16.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+    - uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 16
         cache: 'npm'
-    - run: npm ci
-    - run: npm test
-    - name: Report Code Coverage to Pull Request
+    - name: Build Application
+      run: npm ci
+    - name: Run Tests (on push)
+      run: npm test
+      if: github.event_name != 'pull_request'
+    - name: Run Tests (on pull request)
       uses: ArtiomTr/jest-coverage-report-action@v2.0.5
       with:
         # skip-step: all
