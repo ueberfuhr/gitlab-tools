@@ -43,17 +43,16 @@ export class GitlabService {
    * Makes a single call to the REST API.
    * The result must not be paginated, otherwise, we'll only get the first page.
    * @param resource the URL of the resource
+   * @param method the request method, defaults to 'get'
    * @param options the options of the call
    */
-  call<T>(resource: string, options?: CallOptions): Observable<T> {
+  call<T>(resource: string, method: 'get' | 'post' | 'put' | 'delete' = 'get', options?: CallOptions): Observable<T> {
     return this.notifyObservers(
-      this.http.request<T>(options?.method ?? 'get',
-        `${this.config.host}/api/v4/${resource}`,
-        {
-          body: options?.body,
-          params: options?.params,
-          headers: Object.assign({'PRIVATE-TOKEN': this.config.token}, options?.headers)
-        })
+      this.http.request<T>(method, `${this.config.host}/api/v4/${resource}`, {
+        body: options?.body,
+        params: options?.params,
+        headers: Object.assign({'PRIVATE-TOKEN': this.config.token}, options?.headers)
+      })
     );
   }
 
@@ -71,8 +70,7 @@ export class GitlabService {
   private callPaginatedSincePage<T>(resource: string, page: number, pageSize: number, options?: CallOptions): Observable<DataSet<T>> {
     // deferring is important to only lazy fetch data from the server if the pipe limits the count of data
     return defer(() => this.notifyObservers(
-      this.http.request<T[]>(options?.method ?? 'get',
-        `${this.config.host}/api/v4/${resource}`,
+      this.http.request<T[]>('get', `${this.config.host}/api/v4/${resource}`,
         {
           body: options?.body,
           params: Object.assign({
@@ -114,10 +112,6 @@ export interface CallOptions {
    * A body to include
    */
   body?: any,
-  /**
-   * The request method, defaults to 'get'
-   */
-  method?: 'get' | 'post' | 'put' | 'delete',
   /**
    * Additional headers.
    */
