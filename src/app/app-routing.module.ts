@@ -4,11 +4,11 @@ import {RouterModule, Routes} from '@angular/router';
 const routes: Routes = [
   {
     path: '',
-    loadChildren: () => import('./routing-landing-pages/landing-page/landing-page.module').then(m => m.LandingPageModule)
+    loadChildren: () => import('./landing-page/landing-page.module').then(m => m.LandingPageModule)
   },
   {
     path: 'issues',
-    loadChildren: () => import('./routing-landing-pages/issues-landing-page/issues-landing-page.module').then(m => m.IssuesLandingPageModule)
+    loadChildren: () => import('./gitlab-issues/gitlab-issues.module').then(m => m.GitlabIssuesModule)
   }
 ];
 

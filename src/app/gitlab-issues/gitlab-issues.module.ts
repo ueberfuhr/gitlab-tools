@@ -18,15 +18,19 @@ import {MatBadgeModule} from '@angular/material/badge';
 import {MatListModule} from '@angular/material/list';
 import {IssueExchangeCardComponent} from './components/issue-exchange-card/issue-exchange-card.component';
 import {MatMenuModule} from '@angular/material/menu';
+import {LandingPageComponent} from './components/landing-page/landing-page.component';
+import {RouterModule} from '@angular/router';
 
 @NgModule({
   declarations: [
+    LandingPageComponent,
     IssueExchangeModelViewerComponent,
     LabelComponent,
-    IssueExchangeCardComponent,
+    IssueExchangeCardComponent
   ],
   imports: [
     CommonModule,
+    RouterModule.forChild([{path: '', component: LandingPageComponent}]),
     GitlabProjectsModule,
     MatCardModule,
     MatIconModule,
@@ -42,9 +46,6 @@ import {MatMenuModule} from '@angular/material/menu';
     MatBadgeModule,
     MatListModule,
     MatMenuModule
-  ],
-  exports: [
-    IssueExchangeCardComponent
   ]
 })
 export class GitlabIssuesModule {
