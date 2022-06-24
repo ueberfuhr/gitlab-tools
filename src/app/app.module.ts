@@ -8,6 +8,7 @@ import {PageTemplateModule} from './page-template/page-template.module';
 import {HttpClientModule} from '@angular/common/http';
 import {MAT_SNACK_BAR_DEFAULT_OPTIONS, MatSnackBarModule} from '@angular/material/snack-bar';
 import {ProgressViewModule} from './shared/progress-view/progress-view.module';
+import {GitlabConfigModule} from './gitlab-config/gitlab-config.module';
 
 @NgModule({
   declarations: [
@@ -16,6 +17,7 @@ import {ProgressViewModule} from './shared/progress-view/progress-view.module';
   imports: [
     BrowserModule,
     AppRoutingModule,
+    GitlabConfigModule,
     BrowserAnimationsModule,
     PageTemplateModule,
     HttpClientModule,

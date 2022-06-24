@@ -17,4 +17,12 @@ export interface GitlabConfig {
 /**
  * The injection token to get the GitLab config.
  */
-export const GITLAB_CONFIG = new InjectionToken<GitlabConfig>('gitlab.config');
+export const GITLAB_CONFIG = new InjectionToken<GitlabConfig>('Configuration for the Gitlab Endpoint');
+
+/**
+ * The endpoint to the config json.
+ */
+export const GITLAB_CONFIG_ENDPOINT = new InjectionToken<string>('URL to the endpoint providing the configuration', {
+  providedIn: 'root',
+  factory: () => 'gitlab-config.json'
+})

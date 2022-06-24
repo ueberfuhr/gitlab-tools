@@ -1,4 +1,4 @@
-import {GitlabConfig} from '../../../environments/gitlab-config.model';
+import {GitlabConfig} from '../../gitlab-config/gitlab-config.model';
 import {Observable} from 'rxjs';
 
 export interface GitlabConfigConnectionTester {

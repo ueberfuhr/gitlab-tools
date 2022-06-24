@@ -1,6 +1,6 @@
 import {createHttpFactory, HttpMethod, SpectatorHttp} from '@ngneat/spectator/jest';
 import {DataSet, GitlabService} from './gitlab.service';
-import {GITLAB_CONFIG, GitlabConfig} from '../../../environments/gitlab-config.model';
+import {GITLAB_CONFIG, GitlabConfig} from '../../gitlab-config/gitlab-config.model';
 import {Provider} from '@angular/core';
 import {HttpTestingController} from '@angular/common/http/testing';
 import {map, merge, take, toArray} from 'rxjs';
