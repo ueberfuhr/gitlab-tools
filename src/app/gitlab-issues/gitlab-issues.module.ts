@@ -1,7 +1,5 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {GitlabIssuesRoutingModule} from './gitlab-issues-routing.module';
-import {LandingPageComponent} from './components/landing-page/landing-page.component';
 import {GitlabProjectsModule} from '../gitlab-projects/gitlab-projects.module';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
@@ -23,14 +21,12 @@ import {MatMenuModule} from '@angular/material/menu';
 
 @NgModule({
   declarations: [
-    LandingPageComponent,
     IssueExchangeModelViewerComponent,
     LabelComponent,
     IssueExchangeCardComponent,
   ],
   imports: [
     CommonModule,
-    GitlabIssuesRoutingModule,
     GitlabProjectsModule,
     MatCardModule,
     MatIconModule,
@@ -46,6 +42,9 @@ import {MatMenuModule} from '@angular/material/menu';
     MatBadgeModule,
     MatListModule,
     MatMenuModule
+  ],
+  exports: [
+    IssueExchangeCardComponent
   ]
 })
 export class GitlabIssuesModule {
