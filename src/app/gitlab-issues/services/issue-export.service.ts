@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {GitlabIssuesService} from './gitlab-issues.service';
 import {GitlabLabelsService} from './gitlab-labels.service';
-import {forkJoin, map, mergeMap, Observable, tap, toArray} from 'rxjs';
+import {forkJoin, map, mergeMap, Observable, toArray} from 'rxjs';
 import {ExchangeIssue, ExchangeLabel, IssueExchangeModel} from '../models/exchange.model';
 import {ProgressService} from '../../shared/progress-view/progress.service';
 import {IssueExportModelMapperService} from './issue-export-model-mapper.service';
@@ -22,11 +22,11 @@ export class IssueExportService {
     return this.issues.getIssues(projectId)
       .pipe(
         map(set => set.payload),
-        map(this.mapper.mapIssue),
         toArray(),
-        tap(issues => {
-          issues.sort((a, b) => a.iid - b.iid);
-        })
+        map(issues => issues
+          .sort((a, b) => a.iid && b.iid ? a.iid - b.iid : 1)
+          .map(i => this.mapper.mapIssue(i))
+        )
       );
   }
 

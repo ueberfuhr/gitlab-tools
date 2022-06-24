@@ -10,7 +10,6 @@ export class IssueExportModelMapperService {
 
   mapIssue(issue: GitlabIssue): ExchangeIssue {
     return {
-      iid: issue.iid,
       title: issue.title,
       description: issue.description,
       state: issue.state,

@@ -215,13 +215,8 @@ class IssuesImporter {
               private readonly createProgressHandler: (total: number) => ProgressHandler) {
   }
 
-  private sortIssuesByIID(): void {
-    this.issues.sort((a, b) => a.iid - b.iid);
-  }
-
   private createImportOperationForIssue(issue: ExchangeIssue, progressHandler: ProgressHandler) {
     return this.issuesService.create(this.project.id, {
-      iid: issue.iid,
       title: issue.title,
       issue_type: issue.issue_type,
       labels: issue.labels,
@@ -238,9 +233,6 @@ class IssuesImporter {
     if (this.issues.length < 1) {
       return of([])
     } else {
-      if (obtainOrder) {
-        this.sortIssuesByIID();
-      }
       return of(this.issues)
         .pipe(
           // ExchangeIssue[]

@@ -14,7 +14,7 @@ export interface GitlabIssue {
    * The internal ID (displayed in the web UI) that’s unique in the scope of a single project.
    * See {@link https://docs.gitlab.com/ee/api/#id-vs-iid} for more information.
    */
-  iid: number;
+  iid?: number;
   /**
    * The title.
    */
