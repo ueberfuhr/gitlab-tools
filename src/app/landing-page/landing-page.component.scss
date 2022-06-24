@@ -1,0 +1,54 @@
+.grid-container {
+  margin: 20px;
+}
+
+.dashboard-card {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  bottom: 15px;
+}
+
+.more-button {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+}
+
+.dashboard-card-content {
+
+}
+
+.dashboard-card-content-footer {
+  text-align: center;
+}
+
+.nav-entry {
+
+  height: 50px;
+  text-align: left;
+  margin-top: 0.3rem;
+  margin-left: 2rem;
+
+  mat-icon {
+    transform: scale(2);
+    padding-right: 10px;
+  }
+
+  .nav-title {
+    font-weight: bolder;
+    font-size: 1.2rem;
+  }
+
+  .nav-description {
+    font-style: italic;
+    &:before {
+      content: "\A";
+      white-space: pre;
+    }
+
+  }
+
+}
+

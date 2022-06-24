@@ -1,25 +1,6 @@
-import {Component, Input} from '@angular/core';
+import {Component, Inject, Input} from '@angular/core';
 import {Router} from '@angular/router';
-
-/**
- * An entry that is made into the navigation.
- */
-export interface NavigationEntry {
-
-  /**
-   * The label of the navigation entry.
-   */
-  label: string,
-  /**
-   * The router link.
-   */
-  routerLink: string,
-  /**
-   * The material icon, if any should be shown.
-   */
-  icon?: string
-
-}
+import {NAVIGATION_ENTRIES, NavigationEntry} from '../../routing/navigation.model';
 
 @Component({
   selector: 'app-page-template',
@@ -29,9 +10,9 @@ export interface NavigationEntry {
 export class PageTemplateComponent {
 
   @Input() title = '';
-  @Input() navigation: NavigationEntry[] = [];
 
-  constructor(public readonly router: Router) {
+  constructor(public readonly router: Router,
+              @Inject(NAVIGATION_ENTRIES) public readonly navigation: NavigationEntry[]) {
   }
 
 }
