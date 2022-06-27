@@ -3,8 +3,8 @@
   text-align: center;
   border: dashed 1px #979797;
   position: relative;
-  margin: 5px auto;
   vertical-align: middle;
+  font-size: 0.8em;
 
   input {
     opacity: 0;
@@ -28,9 +28,9 @@
   }
 
   h3 {
-    font-size: 1.0em;
-    color: #38424c;
     clear: none;
+    font-size: 1em;
+    display: inline;
   }
 }
 

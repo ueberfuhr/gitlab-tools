@@ -15,13 +15,11 @@
 
         <mat-list-item *ngFor="let issue of model.issues; index as index">
           <h4 mat-line>#{{index + 1}}: {{issue.title}}</h4>
-          <span mat-line>
             <!-- getLabelsByName could be a pipe -->
           <app-label *ngFor="let label of getLabelsByName(issue.labels)"
                      [model]="label"
                      style="margin-right: 2em; font-size: 0.6em;">
           </app-label>
-        </span>
         </mat-list-item>
       </mat-list>
     </div>
