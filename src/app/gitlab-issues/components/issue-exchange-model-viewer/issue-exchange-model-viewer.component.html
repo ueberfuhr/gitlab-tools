@@ -1,24 +1,75 @@
-<div *ngIf="model!== undefined; else nodata">
-  <ng-container *ngIf="model.issues.length>0; else emptyissues">
-    <div class="labels" *ngIf="model.labels.length>0">
+<div *ngIf="items; else nodata">
+  <ng-container *ngIf="items.length>0; else emptyItems">
+    <div class="labels" *ngIf="model!==undefined && model.labels.length>0">
       <app-label *ngFor="let label of model.labels"
                  [model]="label"
                  [displayProjectOrGroupBadge]="true"
+                 [ngClass]="{
+                 'disabled' : !isLabelInSelectedIssue(label)
+                 }"
                  style="margin-right: 2em;">
       </app-label>
     </div>
-    <div class="issues" *ngIf="model.issues.length>0">
+    <div class="issues" *ngIf="items.length>0">
+      <div style="text-align: right;">
+        <mat-checkbox *ngIf="items.length>1"
+                      color="primary"
+                      (change)="selectAll($event.checked)"
+                      [indeterminate]="selectionState === 'partial'"
+                      [checked]="selectionState === 'all'">
+          Alle
+        </mat-checkbox>
+      </div>
       <mat-list>
 
         <!-- TODO extract view component -->
         <!-- TODO support dnd or up/down to resort, delete -->
 
-        <mat-list-item *ngFor="let issue of model.issues; index as index" [class]="index%2===0 ? 'even' : 'odd'">
-          <h4 mat-line>#{{index + 1}}: {{issue.title}}</h4>
-          <app-label *ngFor="let label of issue.labels | labelsByName: model?.labels"
-                     [model]="label"
-                     style="margin-right: .5em; font-size: 0.6em;">
-          </app-label>
+        <mat-list-item *ngFor="let item of items; index as index"
+                       [ngClass]="{
+                        'even' : index % 2 === 0,
+                        'odd' : index % 2 === 1,
+                        'disabled': !item.selected
+                       }"
+        >
+          <ng-container *ngIf="items.length>1">
+            <button mat-icon-button
+                    title="Move to first position"
+                    [disabled]="index <= 0"
+                    (click)="swap(item, 'top')">
+              <mat-icon>keyboard_double_arrow_up</mat-icon>
+            </button>
+            <button mat-icon-button
+                    title="Move to previous position"
+                    [disabled]="index <= 0"
+                    (click)="swap(item, 'previous')">
+              <mat-icon>keyboard_arrow_up</mat-icon>
+            </button>
+            <button mat-icon-button
+                    title="Move to next position"
+                    [disabled]="index >= items.length-1"
+                    (click)="swap(item, 'next')">
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            </button>
+            <button mat-icon-button
+                    title="Move to last position"
+                    [disabled]="index >= items.length-1"
+                    (click)="swap(item, 'bottom')">
+              <mat-icon>keyboard_double_arrow_down</mat-icon>
+            </button>
+          </ng-container>
+          <mat-checkbox class="issue-selector"
+                        color="accent"
+                        [checked]="item.selected"
+                        (change)="select($event.checked, item)">
+          </mat-checkbox>
+          <h4 mat-line>#{{index + 1}}: {{item.issue.title}}</h4>
+          <div mat-line>
+            <app-label *ngFor="let label of item.issue.labels | labelsByName: model?.labels"
+                       [model]="label"
+                       style="margin-right: .5em; font-size: 0.6em;">
+            </app-label>
+          </div>
         </mat-list-item>
       </mat-list>
     </div>
@@ -27,6 +78,6 @@
 <ng-template #nodata>
   (no data selected)
 </ng-template>
-<ng-template #emptyissues>
+<ng-template #emptyItems>
   (no issues available)
 </ng-template>

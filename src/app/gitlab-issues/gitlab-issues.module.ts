@@ -12,7 +12,6 @@ import {FormsModule} from '@angular/forms';
 import {FileDragDropModule} from '../shared/file-drag-drop/file-drag-drop.module';
 import {FlexModule} from '@angular/flex-layout';
 import {IssueExchangeModelViewerComponent} from './components/issue-exchange-model-viewer/issue-exchange-model-viewer.component';
-import {MatDividerModule} from '@angular/material/divider';
 import {LabelComponent} from './components/label/label.component';
 import {MatBadgeModule} from '@angular/material/badge';
 import {MatListModule} from '@angular/material/list';
@@ -20,7 +19,8 @@ import {IssueExchangeCardComponent} from './components/issue-exchange-card/issue
 import {MatMenuModule} from '@angular/material/menu';
 import {LandingPageComponent} from './components/landing-page/landing-page.component';
 import {RouterModule} from '@angular/router';
-import { LabelsByNamePipe } from './pipes/labels-by-name.pipe';
+import {LabelsByNamePipe} from './pipes/labels-by-name.pipe';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 @NgModule({
   declarations: [
@@ -44,10 +44,10 @@ import { LabelsByNamePipe } from './pipes/labels-by-name.pipe';
     FormsModule,
     FileDragDropModule,
     FlexModule,
-    MatDividerModule,
     MatBadgeModule,
     MatListModule,
-    MatMenuModule
+    MatMenuModule,
+    MatCheckboxModule
   ]
 })
 export class GitlabIssuesModule {

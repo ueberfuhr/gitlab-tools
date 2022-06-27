@@ -1,0 +1,46 @@
+$handle-size: 10px;
+$handle-color: #ccc;
+
+:host(:hover) .resizable-triangle {
+  opacity: 1;
+}
+
+.resizable-container {
+
+  position: relative;
+  border: 1pt solid red;
+
+}
+
+.resizable-content {
+
+  position: relative;
+  overflow: auto;
+  max-height: 100%;
+}
+
+.resizable-handle {
+  position: absolute;
+  width: 8rem;
+  height: $handle-size;
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+}
+
+.resizable-triangle {
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity ease-in-out 0.2s;
+  position: absolute;
+  width: 8rem;
+  height: 0;
+  border-left: $handle-size / 2 solid transparent;
+  border-top: $handle-size / 2 solid transparent;
+  border-right: $handle-size / 2 solid $handle-color;
+  border-bottom: $handle-size / 2 solid $handle-color;
+  bottom: 0;
+  right: 0;
+  text-align: right;
+  z-index: 99;
+}

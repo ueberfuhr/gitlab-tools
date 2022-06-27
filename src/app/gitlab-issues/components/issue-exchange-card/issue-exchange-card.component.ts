@@ -17,7 +17,8 @@ export class IssueExchangeCardComponent implements OnInit {
 
   source?: GitlabProject;
   target?: GitlabProject;
-  data?: IssueExchangeModel;
+  _data?: IssueExchangeModel;
+  data2Transfer?: IssueExchangeModel;
 
   constructor(private readonly issueExportService: IssueExportService,
               private readonly progressService: ProgressService,
@@ -31,6 +32,15 @@ export class IssueExchangeCardComponent implements OnInit {
     if (!this.environment.production) {
       this.data = SAMPLE_ISSUES;
     }
+  }
+
+  get data(): IssueExchangeModel | undefined {
+    return this._data;
+  }
+
+  set data(data: IssueExchangeModel | undefined) {
+    this._data = data;
+    this.data2Transfer = data;
   }
 
   importDataFromProject(): void {
@@ -54,21 +64,26 @@ export class IssueExchangeCardComponent implements OnInit {
     reader.readAsText(file);
   }
 
-  get importAvailable(): boolean {
-    return this.target !== undefined && this.data !== undefined && this.data.issues.length > 0;
+  get data2TransferAvailable(): boolean {
+    return this.data2Transfer !== undefined && this.data2Transfer.issues.length > 0;
   }
 
-  loadDataIntoTarget(obtainOrderOnImport = true): void {
-    if (this.importAvailable) {
+  get data2ImportToTargetAvailable(): boolean {
+    return this.data2TransferAvailable && this.target !== undefined;
+  }
+
+
+  importDataIntoTarget(obtainOrderOnImport = true): void {
+    if (this.data2ImportToTargetAvailable) {
       this.importService
-        .import(this.target!, this.data!, obtainOrderOnImport)
+        .import(this.target!, this.data2Transfer!, obtainOrderOnImport)
         .subscribe(result => this.snackBar.open(`Successfully imported ${result.issues.length} issue(s) and ${result.labels.length} label(s)`));
     }
   }
 
   exportAndDownload(): void {
-    if (this.source) {
-      this.issueExportService.export(this.source.id)
+    if (this.data2Transfer) {
+      this.issueExportService.export(this.data2Transfer)
         .subscribe(data => {
           // start download
           this.downloadService.download({
@@ -88,6 +103,9 @@ export class IssueExchangeCardComponent implements OnInit {
     this.target = $event;
   }
 
+  setData2Transfer($event: IssueExchangeModel) {
+    this.data2Transfer = $event;
+  }
 }
 
 const SAMPLE_ISSUES: IssueExchangeModel = {

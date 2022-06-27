@@ -5,6 +5,11 @@
   padding: 0.6em;
   border-bottom: 1px dotted gray;
   line-height: 2.5em;
+
+  app-label.disabled {
+    opacity: .3;
+  }
+
 }
 .issues {
 
@@ -16,6 +21,19 @@
   .odd {
     background-color: rgba(255,255,255,.1);
     @include box-shadow(0 0 .5rem rgba(255,255,255,.1));
+  }
+
+  .disabled {
+
+    h4, app-label, button {
+      opacity: .3;
+    }
+
+  }
+
+  .issue-selector {
+    float: right;
+    margin-left: 1rem;
   }
 
 }
