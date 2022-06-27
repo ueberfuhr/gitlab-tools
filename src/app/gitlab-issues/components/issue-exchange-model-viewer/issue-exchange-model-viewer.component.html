@@ -13,12 +13,11 @@
         <!-- TODO extract view component -->
         <!-- TODO support dnd or up/down to resort, delete -->
 
-        <mat-list-item *ngFor="let issue of model.issues; index as index">
+        <mat-list-item *ngFor="let issue of model.issues; index as index" [class]="index%2===0 ? 'even' : 'odd'">
           <h4 mat-line>#{{index + 1}}: {{issue.title}}</h4>
-            <!-- getLabelsByName could be a pipe -->
-          <app-label *ngFor="let label of getLabelsByName(issue.labels)"
+          <app-label *ngFor="let label of issue.labels | labelsByName: model?.labels"
                      [model]="label"
-                     style="margin-right: 2em; font-size: 0.6em;">
+                     style="margin-right: .5em; font-size: 0.6em;">
           </app-label>
         </mat-list-item>
       </mat-list>

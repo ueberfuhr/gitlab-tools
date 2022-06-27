@@ -1,6 +1,21 @@
+@import '~src/app/scss/mixins';
+
 .labels {
   margin: 0.2em;
   padding: 0.6em;
   border-bottom: 1px dotted gray;
   line-height: 2.5em;
+}
+.issues {
+
+  .even {
+    background-color: rgba(0,0,0,.1);
+    @include box-shadow(0 0 .5rem rgba(0,0,0,.1));
+  }
+
+  .odd {
+    background-color: rgba(255,255,255,.1);
+    @include box-shadow(0 0 .5rem rgba(255,255,255,.1));
+  }
+
 }

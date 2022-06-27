@@ -20,13 +20,15 @@ import {IssueExchangeCardComponent} from './components/issue-exchange-card/issue
 import {MatMenuModule} from '@angular/material/menu';
 import {LandingPageComponent} from './components/landing-page/landing-page.component';
 import {RouterModule} from '@angular/router';
+import { LabelsByNamePipe } from './pipes/labels-by-name.pipe';
 
 @NgModule({
   declarations: [
     LandingPageComponent,
     IssueExchangeModelViewerComponent,
     LabelComponent,
-    IssueExchangeCardComponent
+    IssueExchangeCardComponent,
+    LabelsByNamePipe
   ],
   imports: [
     CommonModule,
