@@ -24,7 +24,7 @@ Accept: application/json
 PRIVATE-TOKEN: {{token}}
 
 ### Read Labels of Project
-GET {{api}}/projects/847/labels
+GET {{api}}/projects/847/labels?with_counts=true
 Accept: application/json
 PRIVATE-TOKEN: {{token}}
 

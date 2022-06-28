@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
-import {map, Observable} from 'rxjs';
-import {GitlabLabel} from '../models/gitlab-label.model';
+import {map, Observable, tap} from 'rxjs';
+import {GitlabLabel, GitlabLabelWithCounts} from '../models/gitlab-label.model';
 import {DataSet, GitlabService} from '../../gitlab-access/services/gitlab.service';
 import {GitlabProject} from '../../gitlab-projects/models/project.model';
 
@@ -12,14 +12,12 @@ export class GitlabLabelsService {
   constructor(private readonly gitlab: GitlabService) {
   }
 
-  /**
-   * Remove all fields from Gitlab resource that are not needed within this application.
-   * @param set the object that was received from Gitlab
-   * @private the reduced object
-   */
-  private static reduceSet(set: DataSet<GitlabLabel>): DataSet<GitlabLabel> {
-    set.payload = GitlabLabelsService.reduce(set.payload)
-    return set;
+  private static reduceWithCount(label: GitlabLabelWithCounts): GitlabLabelWithCounts {
+    return Object.assign(GitlabLabelsService.reduce(label), {
+      open_issues_count : label.open_issues_count,
+      closed_issues_count : label.closed_issues_count,
+      open_merge_requests_count : label.open_merge_requests_count
+    });
   }
 
   private static reduce(label: GitlabLabel): GitlabLabel {
@@ -32,10 +30,22 @@ export class GitlabLabelsService {
     };
   }
 
-  getLabelsForProject(projectId: number): Observable<DataSet<GitlabLabel>> {
-    return this.gitlab.callPaginated<GitlabLabel>(`projects/${projectId}/labels`).pipe(
-      map(GitlabLabelsService.reduceSet)
-    );
+  getLabelsForProject(projectId: number): Observable<DataSet<GitlabLabel>>;
+  getLabelsForProject(projectId: number, addCounts: WithCountType): Observable<DataSet<GitlabLabelWithCounts>>;
+  getLabelsForProject(projectId: number, addCounts?: WithCountType): Observable<DataSet<GitlabLabel | GitlabLabelWithCounts>> {
+    if(addCounts) {
+      return this.gitlab.callPaginated<GitlabLabelWithCounts>(`projects/${projectId}/labels`, {
+        params: {
+          with_counts: true
+        }
+      }).pipe(
+        tap(set => set.payload = GitlabLabelsService.reduceWithCount(set.payload))
+      );
+    } else {
+      return this.gitlab.callPaginated<GitlabLabel>(`projects/${projectId}/labels`).pipe(
+        tap(set => set.payload = GitlabLabelsService.reduce(set.payload))
+      );
+    }
   }
 
   create(project: GitlabProject, label: GitlabLabel): Observable<GitlabLabel> {
@@ -45,6 +55,7 @@ export class GitlabLabelsService {
   }
 
   private createForProject(label: GitlabLabel, projectId: number): Observable<GitlabLabel> {
+    console.log(`Create project label ${label.name} with color ${label.color}`);
     return this.gitlab.call<GitlabLabel>(`projects/${projectId}/labels`, 'post', {
       params: {
         name: label.name,
@@ -72,4 +83,15 @@ export class GitlabLabelsService {
     );
   }
 
+  delete(project: GitlabProject, label: GitlabLabel,): Observable<void> {
+    console.log(`Delete ${label.is_project_label ? 'project' : 'group'} label ${label.name} with color ${label.color}`);
+    return this.gitlab.call<void>(`projects/${project.id}/labels/${label.name}`, 'delete');
+  }
+
 }
+
+export type WithCountType = {};
+/**
+ * Use this to get the labels with count.
+ */
+export const withCount: WithCountType = {}

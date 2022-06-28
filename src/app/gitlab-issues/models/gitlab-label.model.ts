@@ -25,3 +25,34 @@ export interface GitlabLabel {
   is_project_label: boolean
 
 }
+
+/**
+ * A label including its usage statistics.
+ */
+export interface GitlabLabelWithCounts extends GitlabLabel {
+
+  /**
+   * The count of open issues.
+   */
+  open_issues_count: number,
+  /**
+   * The count of closed issues.
+   */
+  closed_issues_count: number,
+  /**
+   * The count of open merge requests.
+   */
+  open_merge_requests_count: number
+
+}
+
+/**
+ * Returns a flag indicating that the label is used in issues or merge requests.
+ * @param label the label
+ * @return <tt>true</tt> if there is at least one issue or merge request with this label
+ */
+export function isLabelUsed(label: GitlabLabelWithCounts): boolean {
+  return label.open_issues_count > 0
+    || label.closed_issues_count > 0
+    || label.open_merge_requests_count > 0;
+}

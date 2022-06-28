@@ -1,0 +1,25 @@
+<h1 mat-dialog-title>Before we start the import...</h1>
+<form (ngSubmit)="ok()">
+  <mat-dialog-content fxLayout="column" fxLayoutGap="20">
+    <br> <!-- dialog resizes with scrollbar when only checkboxes are here -->
+    <mat-checkbox name="cbDeleteOpenIssues"
+                  [disabled]="data.opened<1"
+                  [(ngModel)]="options.deleteOpenIssues">
+      ... delete existing open issues ({{data.opened}})
+    </mat-checkbox>
+    <mat-checkbox name="cbDeleteClosedIssues"
+                  [disabled]="data.closed<1"
+                  [(ngModel)]="options.deleteClosedIssues">
+      ... delete existing closed issues ({{data.closed}})
+    </mat-checkbox>
+    <mat-checkbox name="cbDeleteUnusedLabels"
+                  [(ngModel)]="options.deleteUnusedLabels">
+      ... delete unused labels, if existing (only project level)
+    </mat-checkbox>
+    <br> <!-- dialog resizes with scrollbar when only checkboxes are here -->
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-raised-button (click)="close()" type="reset">Cancel</button>
+    <button mat-raised-button [mat-dialog-close]="true" cdkFocusInitial class="mat-primary" type="submit">Run import</button>
+  </mat-dialog-actions>
+</form>

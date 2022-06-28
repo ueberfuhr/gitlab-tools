@@ -1,9 +1,13 @@
+@import '~src/app/scss/mixins';
+
 .exchange-model-view {
   padding: 1em;
-  border: solid 1px #979797;
+  //border: solid 1px #979797;
   overflow: auto;
-  height: 20em;
+  height: 30em;
   font-family: monospace;
   background: rgba(255, 255, 255, .2);
+  @include box-shadow(0 0 .5rem rgba(255, 255, 255, .2));
   font-size: 0.8em;
+  max-height: 80%;
 }

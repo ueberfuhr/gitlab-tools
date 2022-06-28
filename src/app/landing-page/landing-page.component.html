@@ -1,0 +1,52 @@
+<div class="grid-container">
+  <h2 class="mat-h1">Dashboard</h2>
+  <mat-grid-list [cols]="handset ? 1 : 2" rowHeight="80px">
+    <mat-grid-tile colspan="1" [rowspan]="4">
+      <mat-card class="dashboard-card">
+        <mat-card-header>
+          <mat-card-title>
+            Work with this app
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="dashboard-card-content">
+          <div fxLayout="column" fxLayoutAlign="space-around center">
+            <div *ngFor="let navEntry of navigation" class="nav-entry" fxLayout="row" fxLayoutAlign=" center" fxLayoutGap="10">
+              <mat-icon>{{navEntry.icon}}</mat-icon>
+              <a [routerLink]="navEntry.route.path">
+                <span class="nav-title">
+                  {{navEntry.label}}
+                </span>
+                <span class="nav-description" *ngIf="navEntry.description">{{navEntry.description}}</span>
+              </a>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+    <mat-grid-tile colspan="1" [rowspan]="4">
+      <mat-card class="dashboard-card">
+        <mat-card-header>
+          <mat-card-title>
+            What's new in this version
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="dashboard-card-content">
+          <div>
+            <ul>
+              <li>This Dashboard</li>
+              <li>Clean existing Issues on Import</li>
+              <li>Select and Re-order Issues</li>
+            </ul>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+    <mat-grid-tile [colspan]="handset ? 1 : 2">
+      <mat-card class="dashboard-card">
+        <mat-card-content class="dashboard-card-content dashboard-card-content-footer">
+          <div>Visit us on <a href="https://github.com/ueberfuhr/gitlab-tools" target="_blank" title="Open GitHub Repository">GitHub</a></div>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>

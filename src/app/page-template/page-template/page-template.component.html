@@ -7,7 +7,7 @@
         </a>
         <mat-menu #menu="matMenu">
           <ng-container *ngFor="let entry of navigation">
-            <button mat-menu-item [routerLink]="entry.routerLink">
+            <button mat-menu-item [routerLink]="entry.route.path">
               <mat-icon *ngIf="entry.icon" class="icon">{{entry.icon}}</mat-icon>
               {{entry.label}}
             </button>
@@ -20,7 +20,7 @@
       <div fxFlex fxLayout fxLayoutAlign="flex-end" fxHide.xs>
         <button *ngFor="let entry of navigation"
                 mat-icon-button title="{{entry.label}}"
-                (click)="this.router.navigateByUrl(entry.routerLink)">
+                (click)="this.router.navigateByUrl(entry.route.path)">
           <mat-icon *ngIf="entry.icon" class="icon">{{entry.icon}}</mat-icon>
           <span *ngIf="!entry.icon" class="label">{{entry.label}}</span>
         </button>

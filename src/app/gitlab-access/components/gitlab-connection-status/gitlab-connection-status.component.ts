@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, Inject, OnDestroy, OnInit} from '@angular/core';
-import {GITLAB_CONFIG, GitlabConfig} from '../../../../environments/gitlab-config.model';
+import {GITLAB_CONFIG, GitlabConfig} from '../../../gitlab-config/gitlab-config.model';
 import {GitlabConfigDialogService} from '../../services/gitlab-config-dialog.service';
 import {GitlabService} from '../../services/gitlab.service';
 import {catchError, map, Observable, of, Subscription} from 'rxjs';

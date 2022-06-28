@@ -3,54 +3,63 @@
   <mat-card-subtitle>
     Export issues and labels from project and import them into another project.
   </mat-card-subtitle>
-  <mat-card-content>
-    <div style="margin-top: 2em;">
-      <app-project-selector label="Select a project to export issues" (projectSelected)="onSourceSelected($event)">
-        <button mat-button color="primary" [disabled]="!source" title="Run export" (click)="downloadExportedIssues()">
-          <mat-icon>file_download</mat-icon>
-        </button>
-      </app-project-selector>
-    </div>
-    <div fxLayout="row" fxLayoutGap="40">
-      <div fxFlex="20%">
-      </div>
-      <div fxFlex="80%" style="text-align: center;">
-        <button mat-raised-button color="primary" [disabled]="!source" (click)="importDataFromProject()">
-          <mat-icon>arrow_downward</mat-icon>
-          Read issues
-        </button>
-      </div>
-    </div>
-    <div fxLayout="row" fxLayoutGap="40" style="margin-top: 1em;">
+  <mat-card-content fxLayout="column" fxLayoutGap="40px">
+    <!-- TOP: IMPORT BAR -->
+    <div fxLayout="row" fxLayoutGap="20">
+      <!-- LEFT: FILE IMPORT -->
       <div fxFlex="20%">
         <app-file-drag-drop accept="text/json" (fileDropped)="importDataFromFile($event)"></app-file-drag-drop>
       </div>
-      <div fxFlex="80%" class="exchange-model-view">
-        <app-issue-exchange-model-viewer [model]="data"></app-issue-exchange-model-viewer>
-      </div>
-    </div>
-    <div fxLayout="row" fxLayoutGap="40" style="margin-top: 1em; margin-bottom: 1em;">
-      <div fxFlex="20%">
-      </div>
-      <div fxFlex="80%" style="text-align: center;">
-        <button mat-raised-button color="primary" [disabled]="!importAvailable" (click)="loadDataIntoTarget()">
-          <mat-icon>arrow_downward</mat-icon>
-          Import issues
-        </button>
-        <button mat-icon-button color="primary" [disabled]="!importAvailable" [matMenuTriggerFor]="menuImportOptions">
-          <mat-icon style="height: auto;">more_vert</mat-icon>
-        </button>
-        <mat-menu xPosition="before" #menuImportOptions="matMenu">
-          <button mat-menu-item (click)="loadDataIntoTarget(false)">
-            <mat-icon>bolt</mat-icon>
-            <span>Import unordered, but faster</span>
+      <!-- RIGHT: CHOOSE PROJECT -->
+      <div fxFlex="80%">
+        <app-project-selector label="Select a project to read issues" (projectSelected)="onSourceSelected($event)">
+          <button mat-button color="primary" title="Read issues" [disabled]="!source" (click)="importDataFromProject()">
+            <mat-icon>arrow_downward</mat-icon>
           </button>
-        </mat-menu>
+        </app-project-selector>
       </div>
     </div>
-    <div>
-      <app-project-selector label="Select a project to import issues" (projectSelected)="onTargetSelected($event)">
-      </app-project-selector>
+    <!-- CONTENT BAR -->
+    <div class="exchange-model-view-part">
+      <div class="exchange-model-view">
+        <app-issue-exchange-model-viewer [model]="data" (change)="setData2Transfer($event)"></app-issue-exchange-model-viewer>
+      </div>
+      <div style="text-align: right; font-style: italic;">
+        {{data2Transfer?.issues?.length || 0}} of {{data?.issues?.length || 0}} issue(s) selected
+      </div>
+    </div>
+    <!-- EXPORT BAR -->
+    <div fxLayout="row" fxLayoutGap="20">
+      <!-- LEFT: FILE DOWNLOAD -->
+      <div fxFlex="20%" style="text-align: center;">
+        <button mat-raised-button color="primary" [disabled]="!data2TransferAvailable" (click)="exportAndDownload()">
+          <mat-icon>file_download</mat-icon>
+          Download
+        </button>
+      </div>
+      <!-- RIGHT: CHOOSE PROJECT -->
+      <div fxFlex="80%" fxLayout="column">
+        <app-project-selector label="Select a project to import issues" (projectSelected)="onTargetSelected($event)">
+          <button mat-button title="Import Issues" color="primary"
+                  [disabled]="!data2ImportToTargetAvailable"
+                  (click)="importDataIntoTarget()">
+            <mat-icon>save</mat-icon>
+          </button>
+          <button mat-icon-button color="primary" [disabled]="!data2ImportToTargetAvailable" [matMenuTriggerFor]="menuImportOptions">
+            <mat-icon style="height: auto;">more_vert</mat-icon>
+          </button>
+          <mat-menu xPosition="before" #menuImportOptions="matMenu">
+            <button mat-menu-item (click)="importDataIntoTarget(false)">
+              <mat-icon>bolt</mat-icon>
+              <span>Import unordered, but faster</span>
+            </button>
+          </mat-menu>
+        </app-project-selector>
+        <mat-error *ngIf="!targetIsClean">
+          This project already has {{targetIssueStatistics.opened}} open and {{targetIssueStatistics.closed}} closed issue(s).
+          You'll get options to choose when running import.
+        </mat-error>
+      </div>
     </div>
   </mat-card-content>
   <mat-card-actions>

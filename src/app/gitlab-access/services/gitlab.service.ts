@@ -1,5 +1,5 @@
 import {Inject, Injectable} from '@angular/core';
-import {GITLAB_CONFIG, GitlabConfig} from '../../../environments/gitlab-config.model';
+import {GITLAB_CONFIG, GitlabConfig} from '../../gitlab-config/gitlab-config.model';
 import {HttpClient, HttpErrorResponse, HttpResponse} from '@angular/common/http';
 import {catchError, concat, defer, EMPTY, from, mergeMap, Observable, Subject, tap, throwError} from 'rxjs';
 

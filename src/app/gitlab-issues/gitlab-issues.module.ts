@@ -1,7 +1,5 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {GitlabIssuesRoutingModule} from './gitlab-issues-routing.module';
-import {LandingPageComponent} from './components/landing-page/landing-page.component';
 import {GitlabProjectsModule} from '../gitlab-projects/gitlab-projects.module';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
@@ -11,15 +9,20 @@ import {ProjectOpenInGitlabButtonModule} from '../gitlab-projects/modules/projec
 import {MatInputModule} from '@angular/material/input';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {FormsModule} from '@angular/forms';
-import {FileDragDropModule} from '../shared/file-drag-drop/file-drag-drop.module';
+import {FileDragDropModule} from '../shared/file-io/file-drag-drop.module';
 import {FlexModule} from '@angular/flex-layout';
 import {IssueExchangeModelViewerComponent} from './components/issue-exchange-model-viewer/issue-exchange-model-viewer.component';
-import {MatDividerModule} from '@angular/material/divider';
 import {LabelComponent} from './components/label/label.component';
 import {MatBadgeModule} from '@angular/material/badge';
 import {MatListModule} from '@angular/material/list';
 import {IssueExchangeCardComponent} from './components/issue-exchange-card/issue-exchange-card.component';
 import {MatMenuModule} from '@angular/material/menu';
+import {LandingPageComponent} from './components/landing-page/landing-page.component';
+import {RouterModule} from '@angular/router';
+import {LabelsByNamePipe} from './pipes/labels-by-name.pipe';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {IssueImportOptionsDialogComponent} from './components/issue-import-options-dialog/issue-import-options-dialog.component';
+import {MatDialogModule} from '@angular/material/dialog';
 
 @NgModule({
   declarations: [
@@ -27,10 +30,12 @@ import {MatMenuModule} from '@angular/material/menu';
     IssueExchangeModelViewerComponent,
     LabelComponent,
     IssueExchangeCardComponent,
+    LabelsByNamePipe,
+    IssueImportOptionsDialogComponent
   ],
   imports: [
     CommonModule,
-    GitlabIssuesRoutingModule,
+    RouterModule.forChild([{path: '', component: LandingPageComponent}]),
     GitlabProjectsModule,
     MatCardModule,
     MatIconModule,
@@ -42,10 +47,11 @@ import {MatMenuModule} from '@angular/material/menu';
     FormsModule,
     FileDragDropModule,
     FlexModule,
-    MatDividerModule,
     MatBadgeModule,
     MatListModule,
-    MatMenuModule
+    MatMenuModule,
+    MatCheckboxModule,
+    MatDialogModule
   ]
 })
 export class GitlabIssuesModule {

@@ -1,4 +1,4 @@
-export type GitlabIssueState = "open" | "closed";
+export type GitlabIssueState = "opened" | "closed";
 export type GitlabIssueType = "issue" | "incident" | "test_case";
 
 /**
@@ -14,7 +14,7 @@ export interface GitlabIssue {
    * The internal ID (displayed in the web UI) that’s unique in the scope of a single project.
    * See {@link https://docs.gitlab.com/ee/api/#id-vs-iid} for more information.
    */
-  iid: number;
+  iid?: number;
   /**
    * The title.
    */
@@ -36,4 +36,18 @@ export interface GitlabIssue {
    */
   issue_type: GitlabIssueType;
 
+}
+
+/**
+ * The issue statistics for a project, a group or the whole Gitlab.
+ */
+export interface GitlabIssuesStatistics {
+  /**
+   * The count of closed issues.
+   */
+  closed: number,
+  /**
+   * The count of opened issues.
+   */
+  opened: number
 }
