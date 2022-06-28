@@ -1,4 +1,4 @@
-import {ProgressDialogHandle} from './progress.service';
+import {Progress, ProgressDialogHandle, toProgress} from './progress.service';
 import {catchError, finalize, MonoTypeOperatorFunction, ObservableInput, ObservedValueOf, OperatorFunction, throwError} from 'rxjs';
 
 /**
@@ -24,28 +24,49 @@ export function finishProgressOnError<T, O extends ObservableInput<any>>(handle:
  * Used to provide a calculation for displaying the progress when finishing a single step.
  * This is necessary because the calling function knows the total count while the called function knows the progress.
  */
-export class ProgressHandler {
+export interface ProgressHandler {
+  // invoke this when a task is done
+  done(): void;
+}
 
-  private count = 0;
+/**
+ * A callback to create a label.
+ */
+export type LabelFactory = (progress: Progress, count: number) => string;
 
-  constructor(private readonly total: number,
-              private readonly factor: number,
-              private readonly offset: number,
-              private readonly handle: ProgressDialogHandle,
-              private readonly getLabel: (progress: number, count: number) => string) {
-  }
+export function createProgressHandler(
+  handle: ProgressDialogHandle,
+  values: ProgressHandlerValues,
+  labelFactory: LabelFactory) {
 
-  /**
-   * Invoked when a single step is done.
-   * @return the corresponding progress (in%)
-   */
-  done(): void {
-    this.count++;
-    const progress = 100 * (this.total === 0 ? 1 : this.offset + this.count * this.factor);
-    this.handle.submit({
-      progress,
-      description: this.getLabel(progress, this.count)
-    });
+  let count = 0;
+
+  return {
+    done(): void {
+      if(values.steps > 0) {
+        count = Math.min(count + 1, values.steps);
+        const progress: Progress = toProgress(values.offset + count * values.factor)
+        handle.submit({
+          progress,
+          description: labelFactory(progress, count)
+        });
+      }
+    }
   }
 
 }
+
+export class ProgressHandlerValues {
+
+  public constructor(public readonly offset: Progress,
+                     public readonly steps: number,
+                     public readonly factor: number,
+  ) {
+  }
+
+  public static ofMinMax(steps: number, minValue: Progress, maxValue: Progress): ProgressHandlerValues {
+    return new ProgressHandlerValues(minValue, steps, (maxValue - minValue) / steps);
+  }
+
+}
+
