@@ -1,16 +1,17 @@
 //Install express server
 const express = require('express');
-
+const root = './dist/gitlab-tools';
 const app = express();
 
 // Serve only the static files from the dist directory
-app.use(express.static('./dist/gitlab-tools'));
+app.use(express.static(root));
 
 app.get('/gitlab-config.json', (req, res) =>
   res.json({host: '', token: ''})
 );
-app.get('/*', (req, res) =>
-  res.sendFile('index.html', {root: 'dist/gitlab-tools/'}),
+// Routing
+app.get('/issues', (req, res) =>
+  res.sendFile('index.html', {root}),
 );
 
 // Start the app by listening on the default Heroku port
