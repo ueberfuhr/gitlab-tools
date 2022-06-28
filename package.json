@@ -3,11 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "node server.js",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "npx jest --ci --json --coverage --testLocationInResults --outputFile=.coverage/report.json",
-    "create-env": "echo {\"host\":\"https://url-to-gitlab\",\"token\":\"your-access-token\"} > src/environments/gitlab-config.json"
+    "create-env": "echo {\"host\":\"https://url-to-gitlab\",\"token\":\"your-access-token\"} > src/environments/gitlab-config.json",
+    "heroku-postbuild": "ng b"
   },
   "private": true,
   "keywords": [
@@ -18,8 +19,10 @@
   "dependencies": {
     "@angular/animations": "~13.3.0",
     "@angular/cdk": "^13.3.5",
+    "@angular/cli": "~13.3.4",
     "@angular/common": "~13.3.0",
     "@angular/compiler": "~13.3.0",
+    "@angular/compiler-cli": "~13.3.0",
     "@angular/core": "~13.3.0",
     "@angular/flex-layout": "^13.0.0-beta.38",
     "@angular/forms": "~13.3.0",
@@ -28,22 +31,25 @@
     "@angular/platform-browser-dynamic": "~13.3.0",
     "@angular/router": "~13.3.0",
     "@fontsource/roboto": "^4.5.5",
+    "express": "^4.18.1",
     "material-design-icons-iconfont": "^6.7.0",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
+    "typescript": "~4.6.2",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~13.3.4",
-    "@angular/cli": "~13.3.4",
-    "@angular/compiler-cli": "~13.3.0",
     "@ngneat/spectator": "^10.0.1",
     "@types/jest": "^27.5.1",
     "@types/node": "^12.11.1",
     "jest": "^28.1.0",
     "jest-preset-angular": "^12.0.0",
     "karma-coverage": "~2.1.0",
-    "ts-jest": "^28.0.2",
-    "typescript": "~4.6.2"
+    "ts-jest": "^28.0.2"
+  },
+  "engines": {
+    "node": "~16.10.0",
+    "npm": "^8.0.0"
   }
 }
