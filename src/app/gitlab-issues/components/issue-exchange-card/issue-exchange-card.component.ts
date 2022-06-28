@@ -2,17 +2,16 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {GitlabProject} from '../../../gitlab-projects/models/project.model';
 import {IssueExchangeModel} from '../../models/exchange.model';
 import {IssueExportService} from '../../services/issue-export.service';
-import {ProgressService} from '../../../shared/progress-view/progress.service';
 import {IssueImportOptions, IssueImportService} from '../../services/issue-import.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {DynamicDownloadService} from '../../../shared/services/dynamic-download.service';
 import {Environment, ENVIRONMENT} from '../../../../environments/environment.model';
 import {GitlabIssuesService} from '../../services/gitlab-issues.service';
-import {GitlabLabelsService} from '../../services/gitlab-labels.service';
 import {GitlabIssuesStatistics} from '../../models/gitlab-issue.model';
 import {MatDialog} from '@angular/material/dialog';
 import {IssueImportOptionsDialogComponent} from '../issue-import-options-dialog/issue-import-options-dialog.component';
 import {Observable, of} from 'rxjs';
+import {FileIOService} from '../../../shared/file-io/file-io.service';
 
 @Component({
   selector: 'app-issue-exchange-card',
@@ -29,8 +28,7 @@ export class IssueExchangeCardComponent implements OnInit {
 
   constructor(private readonly issueExportService: IssueExportService,
               private readonly issueService: GitlabIssuesService,
-              private readonly labelService: GitlabLabelsService,
-              private readonly progressService: ProgressService,
+              private readonly fileIOService: FileIOService,
               private readonly importService: IssueImportService,
               private readonly snackBar: MatSnackBar,
               private readonly downloadService: DynamicDownloadService,
@@ -60,18 +58,9 @@ export class IssueExchangeCardComponent implements OnInit {
   }
 
   importDataFromFile(file: File): void {
-    // HTML5 FileReader API
-    const handle = this.progressService.start({
-      title: 'Reading file...',
-      mode: 'indeterminate'
-    });
-    const reader = new FileReader();
-    reader.onload = (e: ProgressEvent<FileReader>) => {
-      this.data = JSON.parse(e.target?.result as string);
-      handle.finish();
-    };
-    reader.onerror = handle.finish;
-    reader.readAsText(file);
+    this.fileIOService
+      .importTextFromFile(file)
+      .subscribe(text => this.data = JSON.parse(text));
   }
 
   get data2TransferAvailable(): boolean {

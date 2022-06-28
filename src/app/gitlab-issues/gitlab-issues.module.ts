@@ -9,7 +9,7 @@ import {ProjectOpenInGitlabButtonModule} from '../gitlab-projects/modules/projec
 import {MatInputModule} from '@angular/material/input';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {FormsModule} from '@angular/forms';
-import {FileDragDropModule} from '../shared/file-drag-drop/file-drag-drop.module';
+import {FileDragDropModule} from '../shared/file-io/file-drag-drop.module';
 import {FlexModule} from '@angular/flex-layout';
 import {IssueExchangeModelViewerComponent} from './components/issue-exchange-model-viewer/issue-exchange-model-viewer.component';
 import {LabelComponent} from './components/label/label.component';
@@ -21,7 +21,7 @@ import {LandingPageComponent} from './components/landing-page/landing-page.compo
 import {RouterModule} from '@angular/router';
 import {LabelsByNamePipe} from './pipes/labels-by-name.pipe';
 import {MatCheckboxModule} from '@angular/material/checkbox';
-import { IssueImportOptionsDialogComponent } from './components/issue-import-options-dialog/issue-import-options-dialog.component';
+import {IssueImportOptionsDialogComponent} from './components/issue-import-options-dialog/issue-import-options-dialog.component';
 import {MatDialogModule} from '@angular/material/dialog';
 
 @NgModule({
