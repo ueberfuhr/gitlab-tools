@@ -3,9 +3,12 @@ const express = require('express');
 
 const app = express();
 
-// Serve only the static files form the dist directory
+// Serve only the static files from the dist directory
 app.use(express.static('./dist/gitlab-tools'));
 
+app.get('/gitlab-config.json', (req, res) =>
+  res.json({host: '', token: ''})
+);
 app.get('/*', (req, res) =>
   res.sendFile('index.html', {root: 'dist/gitlab-tools/'}),
 );
