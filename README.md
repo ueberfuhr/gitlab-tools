@@ -3,6 +3,8 @@
 
 Ein Projekt mit Beispiel-Skripten für die automatisierte Verwendung von GitLab mithilfe der [REST API](https://docs.gitlab.com/ee/api/).
 
+Live-Demo: [https://gitlab-tool.herokuapp.com/](https://gitlab-tool.herokuapp.com/)
+
 ## Initiales Setup
 
 ### Access Token für Zugriffe einrichten
