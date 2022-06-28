@@ -3,10 +3,16 @@ import {GitlabProject} from '../../../gitlab-projects/models/project.model';
 import {IssueExchangeModel} from '../../models/exchange.model';
 import {IssueExportService} from '../../services/issue-export.service';
 import {ProgressService} from '../../../shared/progress-view/progress.service';
-import {IssueImportService} from '../../services/issue-import.service';
+import {IssueImportOptions, IssueImportService} from '../../services/issue-import.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {DynamicDownloadService} from '../../../shared/services/dynamic-download.service';
 import {Environment, ENVIRONMENT} from '../../../../environments/environment.model';
+import {GitlabIssuesService} from '../../services/gitlab-issues.service';
+import {GitlabLabelsService} from '../../services/gitlab-labels.service';
+import {GitlabIssuesStatistics} from '../../models/gitlab-issue.model';
+import {MatDialog} from '@angular/material/dialog';
+import {IssueImportOptionsDialogComponent} from '../issue-import-options-dialog/issue-import-options-dialog.component';
+import {Observable, of} from 'rxjs';
 
 @Component({
   selector: 'app-issue-exchange-card',
@@ -19,13 +25,17 @@ export class IssueExchangeCardComponent implements OnInit {
   target?: GitlabProject;
   _data?: IssueExchangeModel;
   data2Transfer?: IssueExchangeModel;
+  targetIssueStatistics: GitlabIssuesStatistics = {opened: 0, closed: 0};
 
   constructor(private readonly issueExportService: IssueExportService,
+              private readonly issueService: GitlabIssuesService,
+              private readonly labelService: GitlabLabelsService,
               private readonly progressService: ProgressService,
               private readonly importService: IssueImportService,
               private readonly snackBar: MatSnackBar,
               private readonly downloadService: DynamicDownloadService,
-              @Inject(ENVIRONMENT) private readonly environment: Environment) {
+              @Inject(ENVIRONMENT) private readonly environment: Environment,
+              private readonly dialog: MatDialog) {
   }
 
   ngOnInit(): void {
@@ -72,12 +82,36 @@ export class IssueExchangeCardComponent implements OnInit {
     return this.data2TransferAvailable && this.target !== undefined;
   }
 
+  get targetIsClean(): boolean {
+    return this.targetIssueStatistics.opened < 1 && this.targetIssueStatistics.closed < 1
+  }
+
+  private retrieveImportOptions(): Observable<IssueImportOptions | undefined> {
+    return this.targetIsClean ? of({
+      deleteClosedIssues: false,
+      deleteOpenIssues: false,
+      deleteUnusedLabels: false
+    }) : this.dialog.open<IssueImportOptionsDialogComponent, GitlabIssuesStatistics, IssueImportOptions>(IssueImportOptionsDialogComponent, {
+      data: this.targetIssueStatistics,
+      autoFocus: true,
+      disableClose: false,
+      minWidth: '20em',
+      minHeight: '15em'
+    }).afterClosed();
+  }
 
   importDataIntoTarget(obtainOrderOnImport = true): void {
     if (this.data2ImportToTargetAvailable) {
-      this.importService
-        .import(this.target!, this.data2Transfer!, obtainOrderOnImport)
-        .subscribe(result => this.snackBar.open(`Successfully imported ${result.issues.length} issue(s) and ${result.labels.length} label(s)`));
+      this.retrieveImportOptions().subscribe(result => {
+        if (result) {
+          this.importService
+            .import(this.target!, this.data2Transfer!, result, obtainOrderOnImport)
+            .subscribe(result => {
+              this.updateIssuesStatistics(this.target!.id)
+              this.snackBar.open(`Successfully imported ${result.issues.length} issue(s) and ${result.labels.length} label(s)`);
+            });
+        }
+      });
     }
   }
 
@@ -99,8 +133,14 @@ export class IssueExchangeCardComponent implements OnInit {
     this.source = $event;
   }
 
+  private updateIssuesStatistics(projectId: number): void {
+    this.issueService.getIssuesStatistics(projectId)
+      .subscribe(stat => this.targetIssueStatistics = stat);
+  }
+
   onTargetSelected($event: GitlabProject) {
     this.target = $event;
+    this.updateIssuesStatistics(this.target.id);
   }
 
   setData2Transfer($event: IssueExchangeModel) {
@@ -126,49 +166,49 @@ const SAMPLE_ISSUES: IssueExchangeModel = {
       title: 'This is issue #1',
       labels: ['test', 'test2'],
       description: '',
-      state: 'open',
+      state: 'opened',
       issue_type: 'issue'
     },
     {
       title: 'This is issue #2',
       labels: ['test'],
       description: '',
-      state: 'open',
+      state: 'opened',
       issue_type: 'issue'
     },
     {
       title: 'This is issue #3',
       labels: ['test2'],
       description: '',
-      state: 'open',
+      state: 'opened',
       issue_type: 'issue'
     },
     {
       title: 'This is issue #4',
       labels: [],
       description: '',
-      state: 'open',
+      state: 'opened',
       issue_type: 'issue'
     },
     {
       title: 'This is issue #5',
       labels: ['test2'],
       description: '',
-      state: 'open',
+      state: 'opened',
       issue_type: 'issue'
     },
     {
       title: 'This is issue #6',
       labels: ['test', 'test2'],
       description: '',
-      state: 'open',
+      state: 'opened',
       issue_type: 'issue'
     },
     {
       title: 'This is issue #7',
       labels: ['test'],
       description: '',
-      state: 'open',
+      state: 'opened',
       issue_type: 'issue'
     },
   ]

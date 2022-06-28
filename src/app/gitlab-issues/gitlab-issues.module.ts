@@ -21,6 +21,8 @@ import {LandingPageComponent} from './components/landing-page/landing-page.compo
 import {RouterModule} from '@angular/router';
 import {LabelsByNamePipe} from './pipes/labels-by-name.pipe';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import { IssueImportOptionsDialogComponent } from './components/issue-import-options-dialog/issue-import-options-dialog.component';
+import {MatDialogModule} from '@angular/material/dialog';
 
 @NgModule({
   declarations: [
@@ -28,7 +30,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     IssueExchangeModelViewerComponent,
     LabelComponent,
     IssueExchangeCardComponent,
-    LabelsByNamePipe
+    LabelsByNamePipe,
+    IssueImportOptionsDialogComponent
   ],
   imports: [
     CommonModule,
@@ -47,7 +50,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     MatBadgeModule,
     MatListModule,
     MatMenuModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatDialogModule
   ]
 })
 export class GitlabIssuesModule {

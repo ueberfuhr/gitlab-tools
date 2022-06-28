@@ -55,8 +55,10 @@
             </button>
           </mat-menu>
         </app-project-selector>
-        <div style="text-align: right;">
-        </div>
+        <mat-error *ngIf="!targetIsClean">
+          This project already has {{targetIssueStatistics.opened}} open and {{targetIssueStatistics.closed}} closed issue(s).
+          You'll get options to choose when running import.
+        </mat-error>
       </div>
     </div>
   </mat-card-content>

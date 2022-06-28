@@ -1,19 +1,37 @@
 import {Injectable} from '@angular/core';
-import {GitlabIssuesService} from './gitlab-issues.service';
-import {GitlabLabelsService} from './gitlab-labels.service';
+import {GitlabIssuesService, IssueRequestOptions} from './gitlab-issues.service';
+import {GitlabLabelsService, withCount} from './gitlab-labels.service';
 import {GitlabProject} from '../../gitlab-projects/models/project.model';
 import {ExchangeIssue, ExchangeLabel, IssueExchangeModel} from '../models/exchange.model';
 import {GitlabProjectsService} from '../../gitlab-projects/services/gitlab-projects.service';
-import {combineLatest, concat, defer, map, mergeMap, Observable, of, OperatorFunction, take, tap, toArray} from 'rxjs';
-import {GitlabLabel} from '../models/gitlab-label.model';
+import {combineLatest, concat, defer, forkJoin, map, mergeMap, Observable, of, OperatorFunction, take, tap, toArray} from 'rxjs';
+import {GitlabLabel, isLabelUsed} from '../models/gitlab-label.model';
 import {GitlabIssue} from '../models/gitlab-issue.model';
 import {ProgressDialogHandle, ProgressService} from '../../shared/progress-view/progress.service';
 import {finishProgress, finishProgressOnError, ProgressHandler} from '../../shared/progress-view/progress.utilities';
 
 /**
+ * Options for the import.
+ */
+export interface IssueImportOptions {
+  /**
+   * Delete existing open issues before import.
+   */
+  deleteOpenIssues: boolean,
+  /**
+   * Delete existing closed issues before import.
+   */
+  deleteClosedIssues: boolean,
+  /**
+   * Delete unused labels before import.
+   */
+  deleteUnusedLabels: boolean,
+}
+
+/**
  * The result of the import.
  */
-export interface ImportResult {
+export interface IssueImportResult {
   /**
    * An array of imported labels. If a label with the given name already existed, it was not imported.
    */
@@ -81,7 +99,143 @@ export class IssueImportService {
       );
   }
 
-  import(project: GitlabProject, data: IssueExchangeModel, obtainOrder = true): Observable<ImportResult> {
+  import(project: GitlabProject, data: IssueExchangeModel, options: IssueImportOptions, obtainOrder = true): Observable<IssueImportResult> {
+    return this.doClean(project, options)
+      .pipe(
+        take(1), // just to be sure
+        mergeMap(() => this.doImport(project, data, obtainOrder))
+      );
+  }
+
+  private deleteIssues(project: GitlabProject, options: IssueImportOptions, progressOptions: {
+    handle: ProgressDialogHandle,
+    minProgress: number,
+    maxProgress: number
+  }): Observable<ProgressDialogHandle> {
+    if (options.deleteClosedIssues || options.deleteOpenIssues) {
+      let irOptions: IssueRequestOptions;
+      if (!(options.deleteClosedIssues && options.deleteOpenIssues)) {
+        irOptions = {
+          state: options.deleteOpenIssues ? 'opened' : 'closed'
+        }
+      }
+      return of(progressOptions.handle)
+        .pipe(
+          // 1* ProgressDialogHandle
+          tap(h => h.submit({
+            progress: progressOptions.minProgress,
+            description: 'Fetching issues from project'
+          })),
+          // 1* ProgressDialogHandle => read issues
+          mergeMap(() => this.issuesService.getIssues(project.id, irOptions)),
+          // x* DataSet<GitlabIssue> => fetch them into a single array
+          toArray(),
+          // 1* DataSet<GitlabIssue>[] => delete them step by step
+          mergeMap(issues => {
+            let index = 0;
+            let count = issues.length;
+            if (count > 0) {
+              return forkJoin(
+                issues.map(
+                  i => this.issuesService.delete(project.id, i.payload.iid!)
+                    .pipe(
+                      tap(() => {
+                        index++;
+                        progressOptions.handle.submit({
+                          progress: progressOptions.minProgress + index * (progressOptions.maxProgress - progressOptions.minProgress) / count,
+                          description: `Deleted ${index} of ${count} issue(s).`
+                        });
+                      })
+                    )
+                )
+              )
+            } else {
+              return of([]);
+            }
+          }),
+          // 1* void[]
+          map(() => progressOptions.handle),
+          finishProgressOnError(progressOptions.handle)
+        )
+    } else {
+      return of(progressOptions.handle)
+    }
+  }
+
+  private deleteUnusedLabels(project: GitlabProject, options: IssueImportOptions, progressOptions: {
+    handle: ProgressDialogHandle,
+    minProgress: number,
+    maxProgress: number
+  }): Observable<ProgressDialogHandle> {
+    if (options.deleteUnusedLabels) {
+      return of(progressOptions.handle)
+        .pipe(
+          // 1* ProgressDialogHandle
+          tap(h => h.submit({
+            progress: progressOptions.minProgress,
+            description: 'Fetching labels from project'
+          })),
+          // 1* ProgressDialogHandle => read issues
+          mergeMap(() => this.labelsService.getLabelsForProject(project.id, withCount)),
+          // x* DataSet<GitlabLabelWithCounts> => fetch them into a single array
+          toArray(),
+          // 1* DataSet<GitlabIssue>[] => filter unused and only project leven
+          map(labels => labels.filter(label => label.payload.is_project_label && !isLabelUsed(label.payload))),
+          // 1* DataSet<GitlabIssue>[] => delete them step by step
+          mergeMap(labels => {
+            let index = 0;
+            let count = labels.length;
+            if (count > 0) {
+              return forkJoin(
+                labels.map(
+                  i => this.labelsService.delete(project, i.payload)
+                    .pipe(
+                      tap(() => {
+                        index++;
+                        progressOptions.handle.submit({
+                          progress: progressOptions.minProgress + index * (progressOptions.maxProgress - progressOptions.minProgress) / count,
+                          description: `Deleted ${index} of ${count} label(s).`
+                        });
+                      })
+                    )
+                )
+              )
+            } else {
+              return of([]);
+            }
+          }),
+          // 1* void[]
+          map(() => progressOptions.handle),
+          finishProgressOnError(progressOptions.handle)
+        )
+
+    } else {
+      return of(progressOptions.handle);
+    }
+  }
+
+  private doClean(project: GitlabProject, options: IssueImportOptions): Observable<void> {
+    return defer(
+      () => of(this.progressService.start({title: 'Cleaning project...', mode: 'determinate'}))
+    )
+      .pipe(
+        // ProgressDialogHandle
+        mergeMap(handle => this.deleteIssues(project, options, {
+          handle, minProgress: 0, maxProgress: 80
+        })),
+        // ProgressDialogHandle
+        mergeMap(handle => this.deleteUnusedLabels(project, options, {
+          handle, minProgress: 80, maxProgress: 100
+        })),
+        // ProgressDialogHandle
+        mergeMap(handle => of(void 0).pipe(
+          finishProgress(handle),
+        ))
+        // void
+      );
+  }
+
+  private doImport(project: GitlabProject, data: IssueExchangeModel, obtainOrder: boolean): Observable<IssueImportResult> {
     const total = data.labels.length + data.issues.length;
     if (total === 0) {
       return of({issues: [], labels: [],});
@@ -105,7 +259,7 @@ export class IssueImportService {
                   }, obtainOrder)
                     .pipe(
                       take(1), // just to be sure
-                      map(issues => ({issues, labels} as ImportResult))
+                      map(issues => ({issues, labels} as IssueImportResult))
                     )
                 ),
                 finishProgress(handle)

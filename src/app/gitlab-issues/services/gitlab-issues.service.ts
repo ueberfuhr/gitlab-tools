@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {DataSet, GitlabService} from '../../gitlab-access/services/gitlab.service';
 import {map, Observable} from 'rxjs';
-import {GitlabIssue, GitlabIssueState} from '../models/gitlab-issue.model';
+import {GitlabIssue, GitlabIssueState, GitlabIssuesStatistics} from '../models/gitlab-issue.model';
 
 @Injectable({
   providedIn: 'root'
@@ -33,9 +33,7 @@ export class GitlabIssuesService {
     };
   }
 
-  getIssues(projectId: number, options?: {
-    state?: GitlabIssueState
-  }): Observable<DataSet<GitlabIssue>> {
+  getIssues(projectId: number, options?: IssueRequestOptions): Observable<DataSet<GitlabIssue>> {
     let params = {};
     if (options?.state) {
       params = Object.assign(params, {state: options.state});
@@ -43,6 +41,13 @@ export class GitlabIssuesService {
     return this.gitlab.callPaginated<GitlabIssue>(`projects/${projectId}/issues`, {
       params
     }).pipe(map(GitlabIssuesService.reduceSet));
+  }
+
+  getIssuesStatistics(projectId: number): Observable<GitlabIssuesStatistics> {
+    return this.gitlab.call<{ statistics: { counts: GitlabIssuesStatistics } }>(`projects/${projectId}/issues_statistics`)
+      .pipe(
+        map(result => result.statistics.counts)
+      );
   }
 
   create(projectId: number, issue: GitlabIssue): Observable<GitlabIssue> {
@@ -57,4 +62,12 @@ export class GitlabIssuesService {
     })
   }
 
+  delete(projectId: number, issueId: number): Observable<void> {
+    return this.gitlab.call<void>(`projects/${projectId}/issues/${issueId}`, 'delete');
+  }
+
 }
+
+export type IssueRequestOptions = {
+  state?: GitlabIssueState
+};
