@@ -3,7 +3,7 @@
   <mat-dialog-content>
     <p>{{data.message ?? 'Please enter your account data for Gitlab.'}}</p>
     <mat-form-field>
-      <mat-label>Host Adress</mat-label>
+      <mat-label>Host Address</mat-label>
       <input matInput required pattern="http(s)?://.+" name="host" [(ngModel)]="config.host" autocomplete="url">
     </mat-form-field>
     <br>
