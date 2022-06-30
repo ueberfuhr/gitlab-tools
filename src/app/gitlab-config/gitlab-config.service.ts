@@ -1,17 +1,14 @@
 import {Inject, Injectable} from '@angular/core';
-import {Observable, tap} from 'rxjs';
+import {catchError, Observable, of, tap} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {GITLAB_CONFIG_ENDPOINT, GitlabConfig} from './gitlab-config.model';
+import {emptyGitlabConfig, GITLAB_CONFIG_ENDPOINT, GitlabConfig} from './gitlab-config.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GitlabConfigService {
 
-  private env: GitlabConfig = {
-    host: 'http://localhost',
-    token: '<access-token>'
-  };
+  private env: GitlabConfig = emptyGitlabConfig();
 
   constructor(private readonly http: HttpClient,
               @Inject(GITLAB_CONFIG_ENDPOINT) private readonly endpoint: string) {
@@ -24,7 +21,8 @@ export class GitlabConfigService {
   loadConfiguration(): Observable<GitlabConfig> {
     return this.http.get<GitlabConfig>(this.endpoint)
       .pipe(
-        tap(env => this.env = env)
+        catchError(() => of(emptyGitlabConfig())),
+        tap(env => this.env = env),
       );
   }
 

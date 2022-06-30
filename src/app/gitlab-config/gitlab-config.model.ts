@@ -15,6 +15,16 @@ export interface GitlabConfig {
 }
 
 /**
+ * Returns an empty Gitlab configuration.
+ */
+export function emptyGitlabConfig(): GitlabConfig {
+  return {
+    host: '',
+    token: ''
+  };
+}
+
+/**
  * The injection token to get the GitLab config.
  */
 export const GITLAB_CONFIG = new InjectionToken<GitlabConfig>('Configuration for the Gitlab Endpoint');
