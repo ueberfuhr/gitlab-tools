@@ -38,4 +38,14 @@ describe('GitlabConfigService', () => {
     http.expectOne('endpoint', HttpMethod.GET)
       .flush(config);
   }));
+
+  it('should not prevent application startup when config is not available', fakeAsync(() => {
+    service.loadConfiguration().subscribe(result => {
+      expect(result.host).not.toBeNull();
+      expect(result.token).not.toBeNull();
+    });
+    http.expectOne('endpoint', HttpMethod.GET)
+      .flush(null, {status: 404, statusText: 'Not Found'});
+  }));
+
 });
